@@ -1,23 +1,30 @@
-# Semantic Distance-Based Decision Support System for Football Tactics
+# Football DSS — Modular Engine
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests: 24 passed](https://img.shields.io/badge/tests-24%20passed-green.svg)]()
 
-This repository contains the implementation code for the paper:
+Fork of the [Semantic Distance-Based DSS for Football Tactics](https://github.com/Aribertus/football-dss-semantic-distance), refactored into a modular, testable engine with structured JSON I/O.
 
-> **A Semantic Distance-Based Decision Support System for Football Strategy Selection**  
+> Based on the paper: *Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications*
+> Di Rubbo A., Neri M., Pareschi R., Pedroni M., Valtancoli R., Zica P. — Sci 2025
 
-## Overview
+## What changed from the original
 
-The system recommends tactical strategies by computing **semantic distances** between a team's current state (represented as a 14-dimensional attribute vector) and a library of 20 canonical football strategies. Context-aware weighting adjusts recommendations based on match conditions such as energy levels, opponent characteristics, and time pressure.
+The original repository is a monolithic script (`football_strategy_generation_1_3_1.py`, ~1000 lines) that generates synthetic team data, computes strategy recommendations, and produces plots — all in a single execution flow with hardcoded scenarios and `print()` output.
 
-### Key Features
+This fork separates data, logic, and presentation into independent modules:
 
-- **14 macro-attributes** capturing offensive, defensive, physical, psychological, and relational dimensions
-- **20 strategy templates** spanning the tactical spectrum from ultra-defensive to high-pressing approaches
-- **Dynamic weight adaptation** based on contextual factors (fatigue, opponent gaps, time pressure)
-- **Diagnostic outputs** explaining which attributes drive each recommendation
-- **Reproducible experiments** with seeded random number generation
+- **Structured JSON input/output** with formal schemas and validation
+- **Pure computation engine** — no print, no file I/O, no side effects
+- **Strategy templates externalized** as configuration (JSON), not code constants
+- **Batch processing** — multiple match scenarios in a single call, shared team profiles
+- **Continuous dynamic weights** replacing binary if/else thresholds (no dead zones)
+- **Min-max normalization** enabling context-aware ranking reordering
+- **Plug-in architecture** for weight axes — add/remove/rewrite without touching core logic
+- **Full test suite** (24 tests) covering unit, integration, schema validation, and scenario differentiation
+
+The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) are preserved unchanged for reproducibility of the paper's experimental results.
 
 ## Repository Structure
 
@@ -25,70 +32,215 @@ The system recommends tactical strategies by computing **semantic distances** be
 .
 ├── README.md
 ├── requirements.txt
-├── football_strategy_generation_1_3_1.py   # Core DSS implementation
-├── make_figures.py                          # Figure generation for experiments
-├── compute_pilot_distances.py               # Pilot validation computations
-└── figures/                                 # Generated figures (created on run)
+├── dss_engine.py                  # Core computation module (pure functions)
+├── dss_schema.py                  # Pydantic models for I/O validation
+├── dss_run.py                     # CLI entry point
+├── strategy_templates.json        # 20 strategies with categories (config)
+├── dss_input_schema.json          # JSON Schema for input contract
+├── dss_output_schema.json         # JSON Schema for output contract
+├── example_input.json             # Example: Al-Hilal vs Al-Najma, 5 scenarios
+├── test_dss.py                    # Test suite (pytest)
+│
+│   # Original research scripts (unchanged)
+├── football_strategy_generation_1_3_1.py
+├── make_figures.py
+├── compute_pilot_distances.py
+└── LICENSE
 ```
 
 ## Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/[username]/football-dss-semantic-distance.git
-cd football-dss-semantic-distance
+git clone https://github.com/[username]/football-dss-engine.git
+cd football-dss-engine
 
-# Create virtual environment (recommended)
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Usage
+Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
 
-### 1. Core DSS System
-
-The main implementation generates team profiles, computes semantic distances, and recommends strategies across multiple scenarios:
+## Quick Start
 
 ```bash
-python football_strategy_generation_1_3_1.py
+python dss_run.py --input example_input.json --output results.json
 ```
 
-**Outputs:**
-- Console output with strategy rankings per scenario
-- Radar charts comparing team profiles with recommended strategies
-- Diagnostic CSV files with per-attribute analysis
-- Summary plots in `results_YYYYMMDD_HHMMSS/` directory
+Output:
+```
+[OK] 5 scenarios processed. Output: results.json
+     First scenario best strategy: Quick Rotations in Attack
+```
 
-### 2. Experimental Figures
-
-Generate figures for the experimental evaluation section:
-
+Custom strategy templates:
 ```bash
-python make_figures.py
+python dss_run.py --input match.json --output results.json --strategies my_strategies.json
 ```
 
-**Outputs** (in `figures/` directory):
-- `radar_scenario[1-4].png` — Team vs. top strategies for each scenario
-- `sensitivity_all.png` — λ parameter sensitivity analysis
-- `robustness_s2.png` — Robustness to input noise
-- `ablation_s3.png` — Ablation study results
-- `attribute_importance.png` — Top macro-attributes by impact
+## Input Format
 
-### 3. Pilot Validation
+The system accepts a JSON file with three required sections: team profile, opponent profile, and an array of match scenarios. An optional config section controls engine parameters.
 
-Reproduce the pilot study computations (C-Junioren match analysis):
-
-```bash
-python compute_pilot_distances.py
+```json
+{
+  "input_mode": "macro",
+  "team": {
+    "name": "Al-Hilal",
+    "A1": 0.82, "A2": 0.55, "A3": 0.78, "A4": 0.75,
+    "A5": 0.70, "A6": 0.72, "A7": 0.75, "A8": 0.80,
+    "A9": 0.80, "A10": 0.65, "A11": 0.80, "A12": 0.82,
+    "A13": 0.75, "A14": 0.78
+  },
+  "opponent": {
+    "name": "Al-Najma",
+    "A1": 0.50, "A2": 0.75, "A3": 0.55, "A4": 0.55,
+    "A5": 0.45, "A6": 0.40, "A7": 0.70, "A8": 0.75,
+    "A9": 0.65, "A10": 0.70, "A11": 0.72, "A12": 0.50,
+    "A13": 0.65, "A14": 0.68
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "label": "Midfield dominance, early match",
+      "match_conditions": {
+        "time_remaining": 75,
+        "score_diff": 0,
+        "fatigue_level": 0.20,
+        "morale": 0.80
+      }
+    }
+  ],
+  "config": {
+    "opponent_penalty_lambda": 0.5,
+    "top_n": 5
+  }
+}
 ```
 
-**Outputs:**
-- Console output with distance tables and rankings
-- `figures/pilot_radar_halftime.png` — Radar chart for pilot study
-- `figures/pilot_results_summary.txt` — Summary of pilot validation
+`input_mode` accepts `"macro"` (A1-A14 already aggregated) or `"raw"` (player-level attributes, not yet implemented — reserved for future use).
+
+Validation rejects out-of-range values, missing fields, and unsupported modes with clear error messages:
+
+```
+[ERROR] Input validation failed:
+  team → A1: Input should be less than or equal to 1
+```
+
+## Output Format
+
+For each scenario, the engine returns the best strategy (with and without dynamic weights), plus the top-N ranking:
+
+```json
+{
+  "meta": {
+    "version": "1.0.0",
+    "timestamp": "2026-03-01T15:02:22Z",
+    "config_used": { "opponent_penalty_lambda": 0.5, "top_n": 5 },
+    "team_name": "Al-Hilal",
+    "opponent_name": "Al-Najma",
+    "total_scenarios": 5
+  },
+  "results": [
+    {
+      "scenario_id": "S1",
+      "scenario_label": "Midfield dominance, early match",
+      "match_conditions": { "time_remaining": 75, "score_diff": 0, "fatigue_level": 0.20, "morale": 0.80 },
+      "best_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.1213,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.2655,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "ranking": [ "..." ]
+    }
+  ]
+}
+```
+
+`best_strategy` uses dynamic weights (context-aware); `baseline_strategy` is pure geometric fit (static). When these differ, it means match conditions shifted the recommendation.
+
+## Architecture
+
+### Computation Pipeline
+
+```
+Input JSON
+    │
+    ▼
+┌─────────────────────┐
+│  Pydantic Validation │  ← dss_schema.py
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Team/Opponent       │  A1-A14 vectors
+│  Profile Parsing     │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  For each scenario:  │
+│                      │
+│  1. Raw distances    │  Euclidean: team ↔ 20 strategies
+│  2. Opponent penalty │  Exponential decay on opponent fit
+│  3. Min-max normalize│  Relative scaling [0.1, 1.0]
+│  4. Dynamic weights  │  Product of 4 continuous axes
+│  5. Sort & rank      │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  Output JSON         │
+└─────────────────────┘
+```
+
+### Dynamic Weight System
+
+The original implementation used binary if/else thresholds: conditions either triggered or didn't, creating dead zones where different match states produced identical rankings.
+
+This fork replaces them with four continuous sigmoid-based axes. Each axis maps match conditions to a multiplier around 1.0 (below 1.0 = bonus, above = penalty). The final adjustment is the product of all axes, clamped to [0.4, 2.0].
+
+**Energy axis** — High fatigue penalizes high-intensity strategies proportionally. A team at fatigue 0.5 sees a *mild* penalty on pressing tactics; at 0.85 the penalty is *heavy*. No threshold, no dead zone.
+
+**Urgency axis** — Combines time pressure and score context through a sigmoid centered at minute 25. Being behind with 30 minutes left produces a subtle push toward offensive tactics; with 10 minutes left, the push is strong. The axis also works in reverse: ahead with little time rewards conservative strategies.
+
+**Morale axis** — Low morale penalizes tactically complex strategies (requiring high cohesion and coordination), while high morale gives a slight bonus to ambitious offensive tactics.
+
+**Score context axis** — Independent of time, captures the pure effect of lead size. A 2-0 lead mildly favors possession/defensive strategies regardless of minute.
+
+### Plug-in Design
+
+Adding a new axis requires two changes:
+
+1. Write a function with signature `(match_conditions: dict, strategy_vector: list[float]) -> float`
+2. Append it to the `WEIGHT_AXES` list
+
+```python
+# Example: weather axis (hypothetical)
+def axis_weather(mc: dict, sv: list[float]) -> float:
+    rain = mc.get("rain_intensity", 0.0)
+    technical_demand = (sv[11] + sv[2]) / 2.0  # A12 + A3
+    penalty = rain * technical_demand
+    return _scale_factor(_sigmoid(penalty, 0.0, 3.0), 0.90, 1.20)
+
+WEIGHT_AXES.append(axis_weather)
+```
+
+No other code needs to change. The engine multiplies all registered axes automatically.
+
+### Min-Max Normalization
+
+Raw Euclidean distances vary in absolute scale depending on the team profile. A team strongly aligned with one strategy can have a raw distance gap of 34% between #1 and #2, making it impossible for dynamic weights to reorder the ranking.
+
+Normalizing combined distances to [0.1, 1.0] before applying weights preserves relative ordering while giving the dynamic system enough leverage to shift rankings when conditions warrant it. The floor of 0.1 ensures the best raw strategy still receives a nonzero distance that weights can meaningfully adjust.
 
 ## Macro-Attributes
 
@@ -99,7 +251,7 @@ python compute_pilot_distances.py
 | A3 | Midfield Control | Dominance in central areas |
 | A4 | Transition Speed | Pace of attack-to-defense and defense-to-attack shifts |
 | A5 | High Press Capability | Ability to press opponents in advanced zones |
-| A6 | Width Play | Exploitation of flanks and wide areas |
+| A6 | Width Utilization | Exploitation of flanks and wide areas |
 | A7 | Psychological Resilience | Mental robustness under pressure |
 | A8 | Residual Energy | Current physical reserves |
 | A9 | Team Morale | Collective confidence and motivation |
@@ -111,32 +263,64 @@ python compute_pilot_distances.py
 
 ## Strategy Library
 
-The system includes 20 strategies organized into categories:
+The 20 strategies are organized into five categories in `strategy_templates.json`:
 
-**Offensive:** Build-up Play, Fast Counterattack, Direct Vertical Attack, Target Man Long Ball, Overlapping Flanks, Systematic Crossing, Quick Rotations, Late Midfield Runners
+**Offensive (8):** Build-up Play, Fast Counterattack, Long Ball to Target Man, Late Midfield Runners, Systematic Crossing, Overlapping Flanks, Quick Rotations in Attack, Direct Vertical Attack
 
-**Defensive:** Classic Catenaccio, Deep Block, Compact Zonal Defense, Strict Man-Marking, Offside Trap
+**Defensive (5):** Classic Catenaccio, Positional Defense, Compact Zonal Defense, Strict Man-Marking, Offside Trap
 
-**Pressing:** Ultra-Offensive Pressing, High-Zone Pressing, Midfield Pressing, Gegenpressing, Inducing Build-up Errors
+**Pressing (4):** High Press, Gegenpressing, Midfield Pressing, Inducing Build-up Errors
 
-**Possession:** Long Possession Game, Cautious Horizontal Play, Central Block + Short Bursts
+**Possession (2):** Extended Possession Play, Cautious Horizontal Play
 
-## Reproducibility
+**Hybrid (1):** Central Block with Quick Breaks
 
-All scripts use seeded random number generation (default `SEED = 41`) to ensure reproducible results. To verify reproducibility:
+Each strategy is encoded as a 14-dimensional vector representing its demands on each macro-attribute. These vectors are configuration, not code: editing `strategy_templates.json` changes the behavior without touching Python.
+
+## Testing
 
 ```bash
-# Run twice and compare outputs
-python football_strategy_generation_1_3_1.py > run1.txt
-python football_strategy_generation_1_3_1.py > run2.txt
-diff run1.txt run2.txt  # Should show no differences
+python -m pytest test_dss.py -v
 ```
 
+The suite covers six areas:
+
+**Distance computation** — zero distance for identical vectors, known Euclidean values, symmetry.
+
+**Dynamic weights** — neutral conditions produce near-1.0 adjustment, extreme conditions stay clamped, fatigue penalizes intensity, no dead zones (different inputs always produce different outputs), all axes return positive floats.
+
+**Strategy evaluation** — results sorted ascending, all 20 strategies present, required output fields.
+
+**Scenario differentiation** — radically different conditions produce different top-5 rankings, urgency favors offensive tactics when behind, advantage management favors conservative tactics when ahead.
+
+**Batch execution** — output structure matches schema, Pydantic validates output, scenario IDs preserved, top_n respected.
+
+**Schema validation** — valid input passes, out-of-range attributes rejected, raw mode rejected, empty scenarios rejected, missing attributes rejected.
+
+## Roadmap
+
+**Step 1B — Raw input mode.** Accept player-level attributes (xG, speed, stamina, etc.) per role and compute A1-A14 internally using the aggregation functions from the original codebase. The `input_mode: "raw"` field is already reserved in the schema.
+
+**Diagnostics layer.** Per-attribute delta analysis (strategy demands vs. team capabilities) in the output, identifying capability gaps and surpluses for the recommended strategy.
+
+**Visualization layer.** Optional radar chart generation as a separate module, decoupled from the computation engine.
+
+**Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios.
+
+## Original Research Scripts
+
+The following scripts from the upstream repository are preserved unchanged for reproducibility of the paper's experimental results:
+
+- `football_strategy_generation_1_3_1.py` — Original monolithic DSS with all 20 strategies, synthetic data generation, and visualization
+- `make_figures.py` — Generates figures for the paper's experimental evaluation (sensitivity analysis, ablation, robustness)
+- `compute_pilot_distances.py` — Pilot validation computations (Al-Hilal vs Al-Najma match analysis)
+
+These scripts use `SEED = 41` for deterministic output.
 
 ## License
 
-This project is licensed under the MIT License — see the LICENSE file for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
-## Contact
+## References
 
-For questions or issues, please open a GitHub issue or contact remo-pareschi@unimol.it.
+Di Rubbo, A.; Neri, M.; Pareschi, R.; Pedroni, M.; Valtancoli, R.; Zica, P. *Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications.* Sci 2025, 1, 0.

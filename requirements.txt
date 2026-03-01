@@ -1,6 +1,8 @@
-# Requirements for Football Strategy DSS
-# Tested with Python 3.9+
+# Requirements for Football DSS Engine
+# Tested with Python 3.10+
 
 numpy>=1.21.0
 pandas>=1.3.0
 matplotlib>=3.4.0
+pydantic>=2.0.0
+pytest>=7.0.0

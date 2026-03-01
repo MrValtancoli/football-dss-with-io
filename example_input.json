@@ -1,0 +1,73 @@
+{
+  "input_mode": "macro",
+  "team": {
+    "name": "Al-Hilal",
+    "A1": 0.82, "A2": 0.55, "A3": 0.78, "A4": 0.75,
+    "A5": 0.70, "A6": 0.72, "A7": 0.75, "A8": 0.80,
+    "A9": 0.80, "A10": 0.65, "A11": 0.80, "A12": 0.82,
+    "A13": 0.75, "A14": 0.78
+  },
+  "opponent": {
+    "name": "Al-Najma",
+    "A1": 0.50, "A2": 0.75, "A3": 0.55, "A4": 0.55,
+    "A5": 0.45, "A6": 0.40, "A7": 0.70, "A8": 0.75,
+    "A9": 0.65, "A10": 0.70, "A11": 0.72, "A12": 0.50,
+    "A13": 0.65, "A14": 0.68
+  },
+  "scenarios": [
+    {
+      "id": "S1",
+      "label": "Dominio centrocampo, inizio partita",
+      "match_conditions": {
+        "time_remaining": 75,
+        "score_diff": 0,
+        "fatigue_level": 0.20,
+        "morale": 0.80
+      }
+    },
+    {
+      "id": "S2",
+      "label": "Attacco manovrato contro blocco 5-3-2",
+      "match_conditions": {
+        "time_remaining": 55,
+        "score_diff": 1,
+        "fatigue_level": 0.40,
+        "morale": 0.85
+      }
+    },
+    {
+      "id": "S3",
+      "label": "Transizione verticale rapida",
+      "match_conditions": {
+        "time_remaining": 40,
+        "score_diff": 2,
+        "fatigue_level": 0.50,
+        "morale": 0.85
+      }
+    },
+    {
+      "id": "S4",
+      "label": "Fase difensiva sotto pressione (Al-Najma prospettiva)",
+      "match_conditions": {
+        "time_remaining": 30,
+        "score_diff": -2,
+        "fatigue_level": 0.65,
+        "morale": 0.45
+      }
+    },
+    {
+      "id": "S5",
+      "label": "Game management 11v9, vantaggio 3-2",
+      "match_conditions": {
+        "time_remaining": 12,
+        "score_diff": 1,
+        "fatigue_level": 0.75,
+        "morale": 0.80
+      }
+    }
+  ],
+  "config": {
+    "opponent_penalty_lambda": 0.5,
+    "top_n": 5
+  }
+}

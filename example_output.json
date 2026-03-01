@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "timestamp": "2026-03-01T14:30:00Z",
+    "config_used": {
+      "opponent_penalty_lambda": 0.5,
+      "top_n": 5
+    },
+    "team_name": "Al-Hilal",
+    "opponent_name": "Al-Najma",
+    "total_scenarios": 5
+  },
+  "results": [
+    {
+      "scenario_id": "S1",
+      "scenario_label": "Dominio centrocampo, inizio partita",
+      "match_conditions": {
+        "time_remaining": 75,
+        "score_diff": 0,
+        "fatigue_level": 0.20,
+        "morale": 0.80
+      },
+      "best_strategy": {
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3421,
+        "raw_distance": 0.3802,
+        "category": "possession"
+      },
+      "baseline_strategy": {
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3802,
+        "raw_distance": 0.3802,
+        "category": "possession"
+      },
+      "ranking": [
+        { "strategy": "Build-up Play",          "adjusted_distance": 0.3421, "raw_distance": 0.3802, "category": "possession" },
+        { "strategy": "Quick Rotations in Attack","adjusted_distance": 0.3587, "raw_distance": 0.3910, "category": "offensive" },
+        { "strategy": "Overlapping Flanks",       "adjusted_distance": 0.3690, "raw_distance": 0.4015, "category": "offensive" },
+        { "strategy": "Extended Possession Play",  "adjusted_distance": 0.3810, "raw_distance": 0.4120, "category": "possession" },
+        { "strategy": "High Press",                "adjusted_distance": 0.3950, "raw_distance": 0.4300, "category": "pressing" }
+      ]
+    },
+    {
+      "scenario_id": "S5",
+      "scenario_label": "Game management 11v9, vantaggio 3-2",
+      "match_conditions": {
+        "time_remaining": 12,
+        "score_diff": 1,
+        "fatigue_level": 0.75,
+        "morale": 0.80
+      },
+      "best_strategy": {
+        "strategy": "Extended Possession Play",
+        "adjusted_distance": 0.2980,
+        "raw_distance": 0.4120,
+        "category": "possession"
+      },
+      "baseline_strategy": {
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3802,
+        "raw_distance": 0.3802,
+        "category": "possession"
+      },
+      "ranking": [
+        { "strategy": "Extended Possession Play",  "adjusted_distance": 0.2980, "raw_distance": 0.4120, "category": "possession" },
+        { "strategy": "Cautious Horizontal Play",  "adjusted_distance": 0.3150, "raw_distance": 0.4500, "category": "possession" },
+        { "strategy": "Positional Defense",         "adjusted_distance": 0.3340, "raw_distance": 0.5100, "category": "defensive" },
+        { "strategy": "Compact Zonal Defense",      "adjusted_distance": 0.3520, "raw_distance": 0.4800, "category": "defensive" },
+        { "strategy": "Build-up Play",              "adjusted_distance": 0.3780, "raw_distance": 0.3802, "category": "possession" }
+      ]
+    }
+  ]
+}

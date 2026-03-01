@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DSS Output - Step 1A",
+  "description": "Output del Decision Support System: ranking strategie per ogni scenario nel batch.",
+  "type": "object",
+  "required": ["results", "meta"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "Metadati dell'esecuzione",
+      "properties": {
+        "version": { "type": "string", "description": "Versione del motore DSS" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "config_used": {
+          "type": "object",
+          "properties": {
+            "opponent_penalty_lambda": { "type": "number" },
+            "top_n": { "type": "integer" }
+          }
+        },
+        "team_name": { "type": ["string", "null"] },
+        "opponent_name": { "type": ["string", "null"] },
+        "total_scenarios": { "type": "integer" }
+      }
+    },
+    "results": {
+      "type": "array",
+      "description": "Un risultato per ogni scenario nel batch, stesso ordine dell'input",
+      "items": {
+        "$ref": "#/definitions/scenario_result"
+      }
+    }
+  },
+  "definitions": {
+    "scenario_result": {
+      "type": "object",
+      "required": ["scenario_id", "match_conditions", "best_strategy", "ranking"],
+      "properties": {
+        "scenario_id": {
+          "type": ["string", "null"],
+          "description": "ID scenario dall'input (null se non fornito)"
+        },
+        "scenario_label": {
+          "type": ["string", "null"],
+          "description": "Label scenario dall'input"
+        },
+        "match_conditions": {
+          "type": "object",
+          "description": "Condizioni partita usate per questo scenario (echo dell'input)",
+          "properties": {
+            "time_remaining": { "type": "number" },
+            "score_diff": { "type": "integer" },
+            "fatigue_level": { "type": "number" },
+            "morale": { "type": "number" }
+          }
+        },
+        "best_strategy": {
+          "$ref": "#/definitions/strategy_score",
+          "description": "Strategia con distanza minima (miglior fit)"
+        },
+        "baseline_strategy": {
+          "$ref": "#/definitions/strategy_score",
+          "description": "Miglior strategia senza pesi dinamici (solo fit statico team-strategy)"
+        },
+        "ranking": {
+          "type": "array",
+          "description": "Top-N strategie ordinate per distanza crescente (miglior fit prima)",
+          "items": {
+            "$ref": "#/definitions/strategy_score"
+          }
+        }
+      }
+    },
+    "strategy_score": {
+      "type": "object",
+      "required": ["strategy", "adjusted_distance"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "description": "Nome della strategia"
+        },
+        "adjusted_distance": {
+          "type": "number",
+          "description": "Distanza semantica adattata (con pesi dinamici e opponent penalty)"
+        },
+        "raw_distance": {
+          "type": "number",
+          "description": "Distanza euclidea grezza team-strategy (senza aggiustamenti)"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["offensive", "defensive", "pressing", "possession", "hybrid"],
+          "description": "Categoria tattica della strategia"
+        }
+      }
+    }
+  }
+}

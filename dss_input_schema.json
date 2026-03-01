@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DSS Input - Step 1A (Macro-Attributes)",
+  "description": "Input per il Decision Support System tattico. Profili squadra come macro-attributi A1-A14, batch di scenari con condizioni partita.",
+  "type": "object",
+  "required": ["input_mode", "team", "opponent", "scenarios"],
+  "properties": {
+    "input_mode": {
+      "type": "string",
+      "enum": ["macro", "raw"],
+      "default": "macro",
+      "description": "Modalità input: 'macro' = macro-attributi A1-A14 già aggregati, 'raw' = attributi grezzi per giocatore (Step 1B, non ancora implementato)"
+    },
+    "team": {
+      "$ref": "#/definitions/team_profile",
+      "description": "Profilo macro-attributi della propria squadra"
+    },
+    "opponent": {
+      "$ref": "#/definitions/team_profile",
+      "description": "Profilo macro-attributi dell'avversario"
+    },
+    "scenarios": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Array di scenari partita da valutare (batch)",
+      "items": {
+        "$ref": "#/definitions/scenario"
+      }
+    },
+    "config": {
+      "$ref": "#/definitions/config",
+      "description": "Parametri opzionali di configurazione del motore"
+    }
+  },
+  "definitions": {
+    "team_profile": {
+      "type": "object",
+      "description": "Vettore a 14 dimensioni: valori normalizzati [0.0, 1.0]",
+      "required": ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14"],
+      "properties": {
+        "name": { "type": "string", "description": "Nome squadra (opzionale, per leggibilità output)" },
+        "A1":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Offensive Strength" },
+        "A2":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Defensive Strength" },
+        "A3":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Midfield Control" },
+        "A4":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Transition Speed" },
+        "A5":  { "type": "number", "minimum": 0, "maximum": 1, "description": "High Press Capability" },
+        "A6":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Width Utilization" },
+        "A7":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Psychological Resilience" },
+        "A8":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Residual Energy" },
+        "A9":  { "type": "number", "minimum": 0, "maximum": 1, "description": "Team Morale" },
+        "A10": { "type": "number", "minimum": 0, "maximum": 1, "description": "Time Management" },
+        "A11": { "type": "number", "minimum": 0, "maximum": 1, "description": "Tactical Cohesion" },
+        "A12": { "type": "number", "minimum": 0, "maximum": 1, "description": "Technical Base" },
+        "A13": { "type": "number", "minimum": 0, "maximum": 1, "description": "Physical Base" },
+        "A14": { "type": "number", "minimum": 0, "maximum": 1, "description": "Relational Cohesion" }
+      },
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "required": ["match_conditions"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identificativo scenario (opzionale, restituito nell'output per tracciabilità)"
+        },
+        "label": {
+          "type": "string",
+          "description": "Descrizione leggibile dello scenario (es. 'Sotto 1-0 al 55°, squadra demoralizzata')"
+        },
+        "match_conditions": {
+          "$ref": "#/definitions/match_conditions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "match_conditions": {
+      "type": "object",
+      "required": ["time_remaining", "score_diff", "fatigue_level", "morale"],
+      "properties": {
+        "time_remaining": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 90,
+          "description": "Minuti rimanenti alla fine della partita"
+        },
+        "score_diff": {
+          "type": "integer",
+          "description": "Differenza gol (positivo = in vantaggio, negativo = in svantaggio)"
+        },
+        "fatigue_level": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Livello fatica [0=freschi, 1=esausti]"
+        },
+        "morale": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Morale squadra [0=demoralizzati, 1=euforici]"
+        }
+      },
+      "additionalProperties": false
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "opponent_penalty_lambda": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.5,
+          "description": "Peso penalità opponent-fit nella distanza combinata"
+        },
+        "top_n": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 5,
+          "description": "Numero di strategie da restituire nel ranking"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
