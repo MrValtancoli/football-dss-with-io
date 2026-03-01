@@ -29,3 +29,9 @@ results_*/
 dist/
 build/
 *.egg-info/
+
+# Escludi tutti i file batch creati per Windows
+*.bat
+
+# Escludi eventuali file di log o temporanei
+*.log
