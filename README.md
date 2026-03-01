@@ -1,19 +1,20 @@
-# Football DSS — Modular Engine
+# Extending Semantic Distance for Football Tactics with Structured I/O and Modular Engine
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![I/O: JSON](https://img.shields.io/badge/I%2FO-JSON-orange.svg)]()
 [![Tests: 24 passed](https://img.shields.io/badge/tests-24%20passed-green.svg)]()
 
-Fork of the [Semantic Distance-Based DSS for Football Tactics](https://github.com/Aribertus/football-dss-semantic-distance), refactored into a modular, testable engine with structured JSON I/O.
+Fork of the [Semantic Distance-Based DSS for Football Tactics](https://github.com/Aribertus/football-dss-semantic-distance) by introducing structured JSON input/output and refactoring the original monolithic implementation into a modular, testable engine.
 
 > Based on the paper: *Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications*
 > Di Rubbo A., Neri M., Pareschi R., Pedroni M., Valtancoli R., Zica P. — Sci 2025
 
-## What changed from the original
+## What this extension adds
 
-The original repository is a monolithic script (`football_strategy_generation_1_3_1.py`, ~1000 lines) that generates synthetic team data, computes strategy recommendations, and produces plots — all in a single execution flow with hardcoded scenarios and `print()` output.
+The original repository provides a monolithic script (`football_strategy_generation_1_3_1.py`, ~1000 lines) that generates synthetic team data, computes strategy recommendations, and produces plots — all in a single execution flow with hardcoded scenarios and `print()` output. It serves as the research prototype behind the paper.
 
-This fork separates data, logic, and presentation into independent modules:
+This extension makes the DSS consumable as a component, with a formal I/O contract:
 
 - **Structured JSON input/output** with formal schemas and validation
 - **Pure computation engine** — no print, no file I/O, no side effects
@@ -51,8 +52,8 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 ## Installation
 
 ```bash
-git clone https://github.com/[username]/football-dss-engine.git
-cd football-dss-engine
+git clone https://github.com/MrValtancoli/football-dss-with-io.git
+cd football-dss-with-io
 
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
@@ -206,7 +207,7 @@ Input JSON
 
 The original implementation used binary if/else thresholds: conditions either triggered or didn't, creating dead zones where different match states produced identical rankings.
 
-This fork replaces them with four continuous sigmoid-based axes. Each axis maps match conditions to a multiplier around 1.0 (below 1.0 = bonus, above = penalty). The final adjustment is the product of all axes, clamped to [0.4, 2.0].
+This extension replaces them with four continuous sigmoid-based axes. Each axis maps match conditions to a multiplier around 1.0 (below 1.0 = bonus, above = penalty). The final adjustment is the product of all axes, clamped to [0.4, 2.0].
 
 **Energy axis** — High fatigue penalizes high-intensity strategies proportionally. A team at fatigue 0.5 sees a *mild* penalty on pressing tactics; at 0.85 the penalty is *heavy*. No threshold, no dead zone.
 
@@ -307,9 +308,9 @@ The suite covers six areas:
 
 **Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios.
 
-## Original Research Scripts
+## Upstream Research Scripts
 
-The following scripts from the upstream repository are preserved unchanged for reproducibility of the paper's experimental results:
+The following scripts from the [original repository](https://github.com/Aribertus/football-dss-semantic-distance) are preserved unchanged for reproducibility of the paper's experimental results:
 
 - `football_strategy_generation_1_3_1.py` — Original monolithic DSS with all 20 strategies, synthetic data generation, and visualization
 - `make_figures.py` — Generates figures for the paper's experimental evaluation (sensitivity analysis, ablation, robustness)
