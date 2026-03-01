@@ -23,6 +23,7 @@ This extension makes the DSS consumable as a component, with a formal I/O contra
 - **Continuous dynamic weights** replacing binary if/else thresholds (no dead zones)
 - **Min-max normalization** enabling context-aware ranking reordering
 - **Plug-in architecture** for weight axes — add/remove/rewrite without touching core logic
+- **Integrated figure generation** from real JSON results (`--figures` flag)
 - **Full test suite** (24 tests) covering unit, integration, schema validation, and scenario differentiation
 
 The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) are preserved unchanged for reproducibility of the paper's experimental results.
@@ -35,7 +36,8 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 ├── requirements.txt
 ├── dss_engine.py                  # Core computation module (pure functions)
 ├── dss_schema.py                  # Pydantic models for I/O validation
-├── dss_run.py                     # CLI entry point
+├── dss_run.py                     # CLI entry point (engine + optional figures)
+├── dss_figures.py                 # Figure generator from JSON results
 ├── strategy_templates.json        # 20 strategies with categories (config)
 ├── dss_input_schema.json          # JSON Schema for input contract
 ├── dss_output_schema.json         # JSON Schema for output contract
@@ -73,19 +75,43 @@ Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
 
 ## Quick Start
 
+Run the engine:
 ```bash
 python dss_run.py --input example_input.json --output results.json
+```
+
+Run the engine with figure generation:
+```bash
+python dss_run.py --input example_input.json --output results.json --figures
+```
+
+Run with custom strategies and custom figure directory:
+```bash
+python dss_run.py --input match.json --output results.json --strategies my_strategies.json --figures --figdir my_figures/
 ```
 
 Output:
 ```
 [OK] 5 scenarios processed. Output: results.json
      First scenario best strategy: Quick Rotations in Attack
+
+[FIGURES] Generating plots in figures/ ...
+[OK] 12 figures generated:
+  → radar_S1.png
+  → ranking_S1.png
+  → ...
+  → cross_scenario_overview.png
+  → baseline_delta.png
 ```
 
 Custom strategy templates:
 ```bash
 python dss_run.py --input match.json --output results.json --strategies my_strategies.json
+```
+
+The figure module can also run standalone against previously generated results:
+```bash
+python dss_figures.py --results results.json --input example_input.json --strategies strategy_templates.json --outdir figures/
 ```
 
 Run a specific match scenario (see `examples/`):
@@ -181,6 +207,20 @@ For each scenario, the engine returns the best strategy (with and without dynami
 
 `best_strategy` uses dynamic weights (context-aware); `baseline_strategy` is pure geometric fit (static). When these differ, it means match conditions shifted the recommendation.
 
+## Figure Generation
+
+The `--figures` flag activates `dss_figures.py`, which reads the three JSON sources (input, output, strategy templates) and produces four types of diagnostic plots.
+
+**Radar plots (per scenario)** — Team profile overlaid with the top-3 recommended strategies. Shows at a glance where team capabilities align or diverge from what each strategy demands. Color-coded by strategy category.
+
+**Ranking bar charts (per scenario)** — Horizontal bars comparing adjusted (DSS) vs raw (baseline) distances for the top-N strategies. Makes the gap between first and second choice immediately visible.
+
+**Cross-scenario overview** — Two-panel summary across all scenarios. Top panel: baseline, DSS-adjusted, and raw distances side by side. Bottom panel: match conditions (fatigue, morale, score differential, time remaining) that drove each recommendation. Designed to reveal whether the system actually differentiates across contexts.
+
+**Baseline delta chart** — Per-scenario comparison of the context adjustment (raw − adjusted) for each ranked strategy. Green bars indicate the DSS reduced the distance (context-fit bonus), red bars indicate a penalty. Highlights which scenarios benefit most from dynamic weighting.
+
+All figures are saved as PNG at 180 dpi. The default output directory is `figures/` alongside the results file, overridable with `--figdir`.
+
 ## Architecture
 
 ### Computation Pipeline
@@ -213,6 +253,13 @@ Input JSON
            ▼
 ┌─────────────────────┐
 │  Output JSON         │
+└──────────┬──────────┘
+           │  (optional: --figures)
+           ▼
+┌─────────────────────┐
+│  dss_figures.py      │  Joins input + output + templates
+│  Radar / Bars /      │  Generates diagnostic plots
+│  Overview / Delta    │
 └─────────────────────┘
 ```
 
@@ -345,9 +392,9 @@ These scenarios are designed for demonstrating how the DSS dynamically adapts re
 
 **Diagnostics layer.** Per-attribute delta analysis (strategy demands vs. team capabilities) in the output, identifying capability gaps and surpluses for the recommended strategy.
 
-**Visualization layer.** Optional radar chart generation as a separate module, decoupled from the computation engine.
+**Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios to ensure meaningful ranking differentiation across diverse game states.
 
-**Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios.
+**Extended figure suite.** Sensitivity analysis (λ sweep), robustness tests (Monte Carlo noise injection), and ablation studies — currently available in the original `make_figures.py` with synthetic data, to be integrated into `dss_figures.py` using real JSON results.
 
 ## Upstream Research Scripts
 
