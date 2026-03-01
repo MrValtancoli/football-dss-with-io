@@ -23,7 +23,6 @@ This extension makes the DSS consumable as a component, with a formal I/O contra
 - **Continuous dynamic weights** replacing binary if/else thresholds (no dead zones)
 - **Min-max normalization** enabling context-aware ranking reordering
 - **Plug-in architecture** for weight axes — add/remove/rewrite without touching core logic
-- **Integrated figure generation** from real JSON results (`--figures` flag)
 - **Full test suite** (24 tests) covering unit, integration, schema validation, and scenario differentiation
 
 The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) are preserved unchanged for reproducibility of the paper's experimental results.
@@ -36,13 +35,20 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 ├── requirements.txt
 ├── dss_engine.py                  # Core computation module (pure functions)
 ├── dss_schema.py                  # Pydantic models for I/O validation
-├── dss_run.py                     # CLI entry point (engine + optional figures)
-├── dss_figures.py                 # Figure generator from JSON results
+├── dss_run.py                     # CLI entry point
 ├── strategy_templates.json        # 20 strategies with categories (config)
 ├── dss_input_schema.json          # JSON Schema for input contract
 ├── dss_output_schema.json         # JSON Schema for output contract
 ├── example_input.json             # Example: Al-Hilal vs Al-Najma, 5 scenarios
 ├── test_dss.py                    # Test suite (pytest)
+│
+│   # Match scenario examples (Al-Najma 2 - 4 Al-Hilal, Saudi Pro League 2025-11-07)
+├── examples/
+│   ├── dss_input_scenario_1.json  # S1 min 3'  — Goal conceded (0-1), cold start reaction
+│   ├── dss_input_scenario_2.json  # S2 min 10' — Equalizer (1-1), positive momentum
+│   ├── dss_input_scenario_3.json  # S3 min 58' — Red card Lázaro, 11v10 numerical advantage
+│   ├── dss_input_scenario_4.json  # S4 min 71' — Drawn 2-2, match reopened after OG
+│   └── dss_input_scenario_5.json  # S5 min 85' — Leading 3-2, Al-Najma down to 9 men
 │
 │   # Original research scripts (unchanged)
 ├── football_strategy_generation_1_3_1.py
@@ -67,38 +73,24 @@ Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
 
 ## Quick Start
 
-Run the engine:
 ```bash
 python dss_run.py --input example_input.json --output results.json
-```
-
-Run the engine with figure generation:
-```bash
-python dss_run.py --input example_input.json --output results.json --figures
-```
-
-Run with custom strategies and custom figure directory:
-```bash
-python dss_run.py --input match.json --output results.json --strategies my_strategies.json --figures --figdir my_figures/
 ```
 
 Output:
 ```
 [OK] 5 scenarios processed. Output: results.json
      First scenario best strategy: Quick Rotations in Attack
-
-[FIGURES] Generating plots in figures/ ...
-[OK] 12 figures generated:
-  → radar_S1.png
-  → ranking_S1.png
-  → ...
-  → cross_scenario_overview.png
-  → baseline_delta.png
 ```
 
-The figure module can also run standalone against previously generated results:
+Custom strategy templates:
 ```bash
-python dss_figures.py --results results.json --input example_input.json --strategies strategy_templates.json --outdir figures/
+python dss_run.py --input match.json --output results.json --strategies my_strategies.json
+```
+
+Run a specific match scenario (see `examples/`):
+```bash
+python dss_run.py --input examples/dss_input_scenario_3.json --output results_s3.json
 ```
 
 ## Input Format
@@ -189,20 +181,6 @@ For each scenario, the engine returns the best strategy (with and without dynami
 
 `best_strategy` uses dynamic weights (context-aware); `baseline_strategy` is pure geometric fit (static). When these differ, it means match conditions shifted the recommendation.
 
-## Figure Generation
-
-The `--figures` flag activates `dss_figures.py`, which reads the three JSON sources (input, output, strategy templates) and produces four types of diagnostic plots.
-
-**Radar plots (per scenario)** — Team profile overlaid with the top-3 recommended strategies. Shows at a glance where team capabilities align or diverge from what each strategy demands. Color-coded by strategy category.
-
-**Ranking bar charts (per scenario)** — Horizontal bars comparing adjusted (DSS) vs raw (baseline) distances for the top-N strategies. Makes the gap between first and second choice immediately visible.
-
-**Cross-scenario overview** — Two-panel summary across all scenarios. Top panel: baseline, DSS-adjusted, and raw distances side by side. Bottom panel: match conditions (fatigue, morale, score differential, time remaining) that drove each recommendation. Designed to reveal whether the system actually differentiates across contexts.
-
-**Baseline delta chart** — Per-scenario comparison of the context adjustment (raw − adjusted) for each ranked strategy. Green bars indicate the DSS reduced the distance (context-fit bonus), red bars indicate a penalty. Highlights which scenarios benefit most from dynamic weighting.
-
-All figures are saved as PNG at 180 dpi. The default output directory is `figures/` alongside the results file, overridable with `--figdir`.
-
 ## Architecture
 
 ### Computation Pipeline
@@ -235,13 +213,6 @@ Input JSON
            ▼
 ┌─────────────────────┐
 │  Output JSON         │
-└──────────┬──────────┘
-           │  (optional: --figures)
-           ▼
-┌─────────────────────┐
-│  dss_figures.py      │  Joins input + output + templates
-│  Radar / Bars /      │  Generates diagnostic plots
-│  Overview / Delta    │
 └─────────────────────┘
 ```
 
@@ -340,9 +311,33 @@ The suite covers six areas:
 
 **Schema validation** — valid input passes, out-of-range attributes rejected, raw mode rejected, empty scenarios rejected, missing attributes rejected.
 
-## Known Limitations
+## Match Scenario Examples
 
-The current dynamic weight system may not produce sufficient ranking differentiation when the raw distance gap between the best strategy and the rest is large. In the Al-Hilal vs Al-Najma example, "Quick Rotations in Attack" wins all five scenarios — including S4 (defensive scenario, down 2-0, morale 0.45, fatigue 0.65) — because its raw distance advantage is too large for the weight axes to overcome. The cross-scenario overview and baseline delta figures make this limitation visually evident. Addressing this requires either recalibrating the normalization floor, increasing weight axis ranges, or revising strategy vector definitions to create more competitive distances across categories.
+The `examples/` folder contains five input files derived from the real match **Al-Najma 2 – 4 Al-Hilal** (Saudi Pro League, 2025-11-07). Each file isolates a key match event and provides the contextual `match_conditions` for the DSS to evaluate.
+
+| File | Minute | Event | Score | Phase |
+|------|--------|-------|-------|-------|
+| `dss_input_scenario_1.json` | 3' | Lázaro scores from distance | 1-0 | Disadvantage |
+| `dss_input_scenario_2.json` | 10' | Al-Dawsari equalizes | 1-1 | Equilibrium |
+| `dss_input_scenario_3.json` | 58' | Lázaro red card (violent conduct) | 1-1 | Equilibrium, 11v10 |
+| `dss_input_scenario_4.json` | 71' | Theo Hernández makes it 2-2 | 2-2 | Equilibrium |
+| `dss_input_scenario_5.json` | 85' | Leading 3-2, Al-Najma down to 9 | 3-2 | Advantage, 11v9 |
+
+Run any scenario:
+
+```bash
+python dss_run.py --input examples/dss_input_scenario_1.json --output results_s1.json
+```
+
+Or batch all five:
+
+```bash
+for f in examples/dss_input_scenario_*.json; do
+  python dss_run.py --input "$f" --output "results_$(basename $f)"
+done
+```
+
+These scenarios are designed for demonstrating how the DSS dynamically adapts recommendations as match context evolves — from early-match shock (conceding at 3') through numerical superiority management (11v10, then 11v9).
 
 ## Roadmap
 
@@ -350,9 +345,9 @@ The current dynamic weight system may not produce sufficient ranking differentia
 
 **Diagnostics layer.** Per-attribute delta analysis (strategy demands vs. team capabilities) in the output, identifying capability gaps and surpluses for the recommended strategy.
 
-**Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios to ensure meaningful ranking differentiation across diverse game states.
+**Visualization layer.** Optional radar chart generation as a separate module, decoupled from the computation engine.
 
-**Extended figure suite.** Sensitivity analysis (λ sweep), robustness tests (Monte Carlo noise injection), and ablation studies — currently available in the original `make_figures.py` with synthetic data, to be integrated into `dss_figures.py` using real JSON results.
+**Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios.
 
 ## Upstream Research Scripts
 
