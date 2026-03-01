@@ -1,0 +1,285 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "timestamp": "2026-03-01T16:59:46.976608+00:00",
+    "config_used": {
+      "opponent_penalty_lambda": 0.5,
+      "top_n": 5
+    },
+    "team_name": "Al-Hilal",
+    "opponent_name": "Al-Najma",
+    "total_scenarios": 5
+  },
+  "results": [
+    {
+      "scenario_id": "S1",
+      "scenario_label": "Dominio centrocampo, inizio partita",
+      "match_conditions": {
+        "time_remaining": 75.0,
+        "score_diff": 0,
+        "fatigue_level": 0.2,
+        "morale": 0.8
+      },
+      "best_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.1213,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.2655,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.1213,
+          "raw_distance": 0.2655,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2313,
+          "raw_distance": 0.3557,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.3884,
+          "raw_distance": 0.4653,
+          "category": "possession"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.402,
+          "raw_distance": 0.478,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Central Block with Quick Breaks",
+          "adjusted_distance": 0.411,
+          "raw_distance": 0.4272,
+          "category": "hybrid"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S2",
+      "scenario_label": "Attacco manovrato contro blocco 5-3-2",
+      "match_conditions": {
+        "time_remaining": 55.0,
+        "score_diff": 1,
+        "fatigue_level": 0.4,
+        "morale": 0.85
+      },
+      "best_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.1281,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.2655,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.1281,
+          "raw_distance": 0.2655,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2412,
+          "raw_distance": 0.3557,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.3949,
+          "raw_distance": 0.4653,
+          "category": "possession"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.4188,
+          "raw_distance": 0.478,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Central Block with Quick Breaks",
+          "adjusted_distance": 0.4291,
+          "raw_distance": 0.4272,
+          "category": "hybrid"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S3",
+      "scenario_label": "Transizione verticale rapida",
+      "match_conditions": {
+        "time_remaining": 40.0,
+        "score_diff": 2,
+        "fatigue_level": 0.5,
+        "morale": 0.85
+      },
+      "best_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.1274,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.2655,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.1274,
+          "raw_distance": 0.2655,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2337,
+          "raw_distance": 0.3557,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.3698,
+          "raw_distance": 0.4653,
+          "category": "possession"
+        },
+        {
+          "strategy": "Central Block with Quick Breaks",
+          "adjusted_distance": 0.4098,
+          "raw_distance": 0.4272,
+          "category": "hybrid"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.41,
+          "raw_distance": 0.478,
+          "category": "offensive"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S4",
+      "scenario_label": "Fase difensiva sotto pressione (Al-Najma prospettiva)",
+      "match_conditions": {
+        "time_remaining": 30.0,
+        "score_diff": -2,
+        "fatigue_level": 0.65,
+        "morale": 0.45
+      },
+      "best_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.1507,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.2655,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.1507,
+          "raw_distance": 0.2655,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2962,
+          "raw_distance": 0.3557,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.487,
+          "raw_distance": 0.478,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.5171,
+          "raw_distance": 0.4653,
+          "category": "possession"
+        },
+        {
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.5202,
+          "raw_distance": 0.4945,
+          "category": "offensive"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S5",
+      "scenario_label": "Game management 11v9, vantaggio 3-2",
+      "match_conditions": {
+        "time_remaining": 12.0,
+        "score_diff": 1,
+        "fatigue_level": 0.75,
+        "morale": 0.8
+      },
+      "best_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.1467,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Quick Rotations in Attack",
+        "adjusted_distance": 0.2655,
+        "raw_distance": 0.2655,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.1467,
+          "raw_distance": 0.2655,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2547,
+          "raw_distance": 0.3557,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.3826,
+          "raw_distance": 0.4653,
+          "category": "possession"
+        },
+        {
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.4428,
+          "raw_distance": 0.4945,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Central Block with Quick Breaks",
+          "adjusted_distance": 0.4475,
+          "raw_distance": 0.4272,
+          "category": "hybrid"
+        }
+      ]
+    }
+  ]
+}

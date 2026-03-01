@@ -3,6 +3,8 @@ DSS Runner — CLI entry point.
 Usage:
   python dss_run.py --input match.json --output results.json
   python dss_run.py --input match.json --output results.json --strategies custom_strategies.json
+  python dss_run.py --input match.json --output results.json --figures
+  python dss_run.py --input match.json --output results.json --figures --figdir my_figures/
 """
 
 import argparse
@@ -20,6 +22,8 @@ def main():
     parser.add_argument("--input", required=True, help="Path to input JSON file")
     parser.add_argument("--output", required=True, help="Path to output JSON file")
     parser.add_argument("--strategies", default=None, help="Path to strategy_templates.json (optional)")
+    parser.add_argument("--figures", action="store_true", help="Generate figures from results")
+    parser.add_argument("--figdir", default=None, help="Output directory for figures (default: <output_dir>/figures/)")
     args = parser.parse_args()
 
     # --- Load input file ---
@@ -41,10 +45,9 @@ def main():
             print(f"  {loc}: {err['msg']}", file=sys.stderr)
         sys.exit(1)
 
-    # --- Load strategies ---
-    strategies = None
-    if args.strategies:
-        strategies = load_strategies(args.strategies)
+    # --- Resolve strategies path ---
+    strategies_path = args.strategies or str(Path(__file__).parent / "strategy_templates.json")
+    strategies = load_strategies(strategies_path)
 
     # --- Run engine ---
     output_data = run_batch(validated.model_dump(), strategies)
@@ -62,6 +65,27 @@ def main():
     best = output_validated.results[0].best_strategy.strategy
     print(f"[OK] {n} scenarios processed. Output: {output_path}")
     print(f"     First scenario best strategy: {best}")
+
+    # --- Generate figures if requested ---
+    if args.figures:
+        from dss_figures import generate_all_figures
+
+        figdir = args.figdir or str(output_path.parent / "figures")
+        print(f"\n[FIGURES] Generating plots in {figdir}/ ...")
+
+        try:
+            files = generate_all_figures(
+                results_path=str(output_path),
+                input_path=str(input_path),
+                strategies_path=strategies_path,
+                outdir=figdir,
+            )
+            print(f"[OK] {len(files)} figures generated:")
+            for fname in files:
+                print(f"  → {fname}")
+        except Exception as e:
+            print(f"[WARNING] Figure generation failed: {e}", file=sys.stderr)
+            print("          JSON results were saved successfully.", file=sys.stderr)
 
 
 if __name__ == "__main__":
