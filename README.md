@@ -112,7 +112,7 @@ python dss_run.py --input examples/example_input.json --output output/results.js
 Run with custom strategies and custom figure directory:
 
 ```bash
-python dss_run.py --input examples/match.json --output output/results.json --strategies my_strategies.json --figures --figdir my_figures/
+python dss_run.py --input examples/example_input.json --output output/results.json --strategies my_strategies.json --figures --figdir my_figures/
 
 ```
 
@@ -135,7 +135,7 @@ Output:
 Custom strategy templates:
 
 ```bash
-python dss_run.py --input examples/match.json --output output/results.json --strategies my_strategies.json
+python dss_run.py --input examples/example_input.json --output output/results.json --strategies my_strategies.json
 
 ```
 
