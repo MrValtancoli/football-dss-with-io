@@ -46,6 +46,7 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 │   # Match scenario examples (Al-Najma 2 - 4 Al-Hilal, Saudi Pro League 2025-11-07)
 ├── examples/
 |   ├── example_input.json         # Example: Al-Hilal vs Al-Najma, 5 scenarios
+|   ├── my_strategies.json         # Custom 20 strategies with categories (config)
 │   ├── dss_input_scenario_1.json  # S1 min 3'  — Goal conceded (0-1), cold start reaction
 │   ├── dss_input_scenario_2.json  # S2 min 10' — Equalizer (1-1), positive momentum
 │   ├── dss_input_scenario_3.json  # S3 min 58' — Red card Lázaro, 11v10 numerical advantage
@@ -112,7 +113,7 @@ python dss_run.py --input examples/example_input.json --output output/results.js
 Run with custom strategies and custom figure directory:
 
 ```bash
-python dss_run.py --input examples/example_input.json --output output/results.json --strategies my_strategies.json --figures --figdir my_figures/
+python dss_run.py --input examples/example_input.json --output output/results.json --strategies examples/my_strategies.json --figures --figdir my_figures/
 
 ```
 
