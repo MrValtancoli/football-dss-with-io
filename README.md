@@ -30,7 +30,7 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 
 ## Repository Structure
 
-```
+```text
 .
 ├── README.md
 ├── requirements.txt
@@ -52,11 +52,30 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 │   ├── dss_input_scenario_4.json  # S4 min 71' — Drawn 2-2, match reopened after OG
 │   └── dss_input_scenario_5.json  # S5 min 85' — Leading 3-2, Al-Najma down to 9 men
 │
+│   # Generated outputs and diagnostic figures
+├── output/
+│   ├── example_output.json
+│   ├── results.json
+│   ├── results_s1.json
+│   ├── results_s2.json
+│   ├── results_s3.json
+│   ├── test_output.json
+│   └── figures/
+│       ├── baseline_delta.png
+│       ├── cross_scenario_overview.png
+│       ├── radar_S1_min03.png
+│       ├── radar_S2_min10.png
+│       ├── radar_S3_min58.png
+│       ├── ranking_S1_min03.png
+│       ├── ranking_S2_min10.png
+│       └── ranking_S3_min58.png
+│
 │   # Original research scripts (unchanged)
 ├── football_strategy_generation_1_3_1.py
 ├── make_figures.py
 ├── compute_pilot_distances.py
 └── LICENSE
+
 ```
 
 ## Installation
@@ -69,6 +88,7 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 pip install -r requirements.txt
+
 ```
 
 Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
@@ -76,47 +96,61 @@ Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
 ## Quick Start
 
 Run the engine:
+
 ```bash
-python dss_run.py --input example_input.json --output output\results.json
+python dss_run.py --input example_input.json --output output/results.json
+
 ```
 
 Run the engine with figure generation:
+
 ```bash
-python dss_run.py --input example_input.json --output output\results.json --figures
+python dss_run.py --input example_input.json --output output/results.json --figures
+
 ```
 
 Run with custom strategies and custom figure directory:
+
 ```bash
-python dss_run.py --input match.json --output output\results.json --strategies my_strategies.json --figures --figdir my_figures/
+python dss_run.py --input match.json --output output/results.json --strategies my_strategies.json --figures --figdir my_figures/
+
 ```
 
 Output:
-```
-[OK] 5 scenarios processed. Output: output\results.json
+
+```text
+[OK] 3 scenarios processed. Output: output/results.json
      First scenario best strategy: Quick Rotations in Attack
 
-[FIGURES] Generating plots in figures\ ...
-[OK] 12 figures generated:
-  → radar_S1.png
-  → ranking_S1.png
+[FIGURES] Generating plots in output/figures/ ...
+[OK] 8 figures generated:
+  → radar_S1_min03.png
+  → ranking_S1_min03.png
   → ...
   → cross_scenario_overview.png
   → baseline_delta.png
+
 ```
 
 Custom strategy templates:
+
 ```bash
-python dss_run.py --input match.json --output output\results.json --strategies my_strategies.json
+python dss_run.py --input match.json --output output/results.json --strategies my_strategies.json
+
 ```
 
 The figure module can also run standalone against previously generated results:
+
 ```bash
-python dss_figures.py --results output\results.json --input example_input.json --strategies strategy_templates.json --outdir figures/
+python dss_figures.py --results output/results.json --input example_input.json --strategies strategy_templates.json --outdir output/figures/
+
 ```
 
 Run a specific match scenario (see `examples/`):
+
 ```bash
-python dss_run.py --input examples/dss_input_scenario_3.json --output output\results_s3.json
+python dss_run.py --input examples/dss_input_scenario_3.json --output output/results_s3.json
+
 ```
 
 ## Input Format
@@ -142,13 +176,13 @@ The system accepts a JSON file with three required sections: team profile, oppon
   },
   "scenarios": [
     {
-      "id": "S1",
-      "label": "Midfield dominance, early match",
+      "id": "S1_min03",
+      "label": "Goal conceded (0-1), cold start reaction",
       "match_conditions": {
-        "time_remaining": 75,
-        "score_diff": 0,
-        "fatigue_level": 0.20,
-        "morale": 0.80
+        "time_remaining": 87,
+        "score_diff": -1,
+        "fatigue_level": 0.05,
+        "morale": 0.60
       }
     }
   ],
@@ -157,15 +191,17 @@ The system accepts a JSON file with three required sections: team profile, oppon
     "top_n": 5
   }
 }
+
 ```
 
 `input_mode` accepts `"macro"` (A1-A14 already aggregated) or `"raw"` (player-level attributes, not yet implemented — reserved for future use).
 
 Validation rejects out-of-range values, missing fields, and unsupported modes with clear error messages:
 
-```
+```text
 [ERROR] Input validation failed:
   team → A1: Input should be less than or equal to 1
+
 ```
 
 ## Output Format
@@ -180,13 +216,13 @@ For each scenario, the engine returns the best strategy (with and without dynami
     "config_used": { "opponent_penalty_lambda": 0.5, "top_n": 5 },
     "team_name": "Al-Hilal",
     "opponent_name": "Al-Najma",
-    "total_scenarios": 5
+    "total_scenarios": 3
   },
   "results": [
     {
-      "scenario_id": "S1",
-      "scenario_label": "Midfield dominance, early match",
-      "match_conditions": { "time_remaining": 75, "score_diff": 0, "fatigue_level": 0.20, "morale": 0.80 },
+      "scenario_id": "S1_min03",
+      "scenario_label": "Goal conceded (0-1), cold start reaction",
+      "match_conditions": { "time_remaining": 87, "score_diff": -1, "fatigue_level": 0.05, "morale": 0.60 },
       "best_strategy": {
         "strategy": "Quick Rotations in Attack",
         "adjusted_distance": 0.1213,
@@ -203,6 +239,7 @@ For each scenario, the engine returns the best strategy (with and without dynami
     }
   ]
 }
+
 ```
 
 `best_strategy` uses dynamic weights (context-aware); `baseline_strategy` is pure geometric fit (static). When these differ, it means match conditions shifted the recommendation.
@@ -219,13 +256,13 @@ The `--figures` flag activates `dss_figures.py`, which reads the three JSON sour
 
 **Baseline delta chart** — Per-scenario comparison of the context adjustment (raw − adjusted) for each ranked strategy. Green bars indicate the DSS reduced the distance (context-fit bonus), red bars indicate a penalty. Highlights which scenarios benefit most from dynamic weighting.
 
-All figures are saved as PNG at 180 dpi. The default output directory is `figures/` alongside the results file, overridable with `--figdir`.
+All figures are saved as PNG at 180 dpi. The default output directory is `output/figures/` alongside the results file, overridable with `--figdir`.
 
 ## Architecture
 
 ### Computation Pipeline
 
-```
+```text
 Input JSON
     │
     ▼
@@ -244,7 +281,7 @@ Input JSON
 │  For each scenario:  │
 │                      │
 │  1. Raw distances    │  Euclidean: team ↔ 20 strategies
-│  2. Opponent penalty │  Exponential decay on opponent fit
+│  2. Opponent penalty │  Linear subtraction on opponent fit
 │  3. Min-max normalize│  Relative scaling [0.1, 1.0]
 │  4. Dynamic weights  │  Product of 4 continuous axes
 │  5. Sort & rank      │
@@ -261,6 +298,7 @@ Input JSON
 │  Radar / Bars /      │  Generates diagnostic plots
 │  Overview / Delta    │
 └─────────────────────┘
+
 ```
 
 ### Dynamic Weight System
@@ -293,6 +331,7 @@ def axis_weather(mc: dict, sv: list[float]) -> float:
     return _scale_factor(_sigmoid(penalty, 0.0, 3.0), 0.90, 1.20)
 
 WEIGHT_AXES.append(axis_weather)
+
 ```
 
 No other code needs to change. The engine multiplies all registered axes automatically.
@@ -306,7 +345,7 @@ Normalizing combined distances to [0.1, 1.0] before applying weights preserves r
 ## Macro-Attributes
 
 | Code | Attribute | Description |
-|------|-----------|-------------|
+| --- | --- | --- |
 | A1 | Offensive Strength | Capacity to create and convert scoring opportunities |
 | A2 | Defensive Strength | Ability to prevent opponent attacks |
 | A3 | Midfield Control | Dominance in central areas |
@@ -342,6 +381,7 @@ Each strategy is encoded as a 14-dimensional vector representing its demands on 
 
 ```bash
 python -m pytest test_dss.py -v
+
 ```
 
 The suite covers six areas:
@@ -363,7 +403,7 @@ The suite covers six areas:
 The `examples/` folder contains five input files derived from the real match **Al-Najma 2 – 4 Al-Hilal** (Saudi Pro League, 2025-11-07). Each file isolates a key match event and provides the contextual `match_conditions` for the DSS to evaluate.
 
 | File | Minute | Event | Score | Phase |
-|------|--------|-------|-------|-------|
+| --- | --- | --- | --- | --- |
 | `dss_input_scenario_1.json` | 3' | Lázaro scores from distance | 1-0 | Disadvantage |
 | `dss_input_scenario_2.json` | 10' | Al-Dawsari equalizes | 1-1 | Equilibrium |
 | `dss_input_scenario_3.json` | 58' | Lázaro red card (violent conduct) | 1-1 | Equilibrium, 11v10 |
@@ -373,15 +413,17 @@ The `examples/` folder contains five input files derived from the real match **A
 Run any scenario:
 
 ```bash
-python dss_run.py --input examples/dss_input_scenario_1.json --output results_s1.json
+python dss_run.py --input examples/dss_input_scenario_1.json --output output/results_s1.json
+
 ```
 
 Or batch all five:
 
 ```bash
 for f in examples/dss_input_scenario_*.json; do
-  python dss_run.py --input "$f" --output "results_$(basename $f)"
+  python dss_run.py --input "$f" --output "output/results_$(basename $f)"
 done
+
 ```
 
 These scenarios are designed for demonstrating how the DSS dynamically adapts recommendations as match context evolves — from early-match shock (conceding at 3') through numerical superiority management (11v10, then 11v9).
@@ -400,15 +442,15 @@ These scenarios are designed for demonstrating how the DSS dynamically adapts re
 
 The following scripts from the [original repository](https://github.com/Aribertus/football-dss-semantic-distance) are preserved unchanged for reproducibility of the paper's experimental results:
 
-- `football_strategy_generation_1_3_1.py` — Original monolithic DSS with all 20 strategies, synthetic data generation, and visualization
-- `make_figures.py` — Generates figures for the paper's experimental evaluation (sensitivity analysis, ablation, robustness)
-- `compute_pilot_distances.py` — Pilot validation computations (Al-Hilal vs Al-Najma match analysis)
+* `football_strategy_generation_1_3_1.py` — Original monolithic DSS with all 20 strategies, synthetic data generation, and visualization
+* `make_figures.py` — Generates figures for the paper's experimental evaluation (sensitivity analysis, ablation, robustness)
+* `compute_pilot_distances.py` — Pilot validation computations (Al-Hilal vs Al-Najma match analysis)
 
 These scripts use `SEED = 41` for deterministic output.
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT License — see [LICENSE](https://www.google.com/search?q=LICENSE) for details.
 
 ## References
 
