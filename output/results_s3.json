@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "1.0.0",
-    "timestamp": "2026-03-01T23:49:59.180115+00:00",
+    "timestamp": "2026-03-07T01:14:01.684938+00:00",
     "config_used": {
       "opponent_penalty_lambda": 0.5,
       "top_n": 5
@@ -41,25 +41,25 @@
         },
         {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.252,
+          "adjusted_distance": 0.245,
           "raw_distance": 0.3557,
           "category": "offensive"
         },
         {
           "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.419,
+          "adjusted_distance": 0.4329,
           "raw_distance": 0.4653,
           "category": "possession"
         },
         {
           "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4319,
+          "adjusted_distance": 0.436,
           "raw_distance": 0.478,
           "category": "offensive"
         },
         {
           "strategy": "Build-up Play",
-          "adjusted_distance": 0.4522,
+          "adjusted_distance": 0.466,
           "raw_distance": 0.4945,
           "category": "offensive"
         }

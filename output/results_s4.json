@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "1.0.0",
-    "timestamp": "2026-03-07T01:21:16.784090+00:00",
+    "timestamp": "2026-03-07T01:21:55.280285+00:00",
     "config_used": {
       "opponent_penalty_lambda": 0.5,
       "top_n": 5
@@ -12,17 +12,17 @@
   },
   "results": [
     {
-      "scenario_id": "S2_min10",
-      "scenario_label": "Pareggio ristabilito (1-1, 10'). Costruzione manovrata contro 5-3-2, assist Al-Harbi per Al-Dawsari. Momentum positivo.",
+      "scenario_id": "S4_min71",
+      "scenario_label": "Pareggio 2-2 (71'). Theo Hern\u00e1ndez segna dopo azione corale dalla zona di rifinitura. Gara riaperta dopo OG al 60'.",
       "match_conditions": {
-        "time_remaining": 80.0,
+        "time_remaining": 19.0,
         "score_diff": 0,
-        "fatigue_level": 0.15,
-        "morale": 0.8
+        "fatigue_level": 0.6,
+        "morale": 0.75
       },
       "best_strategy": {
         "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1204,
+        "adjusted_distance": 0.1326,
         "raw_distance": 0.2655,
         "category": "offensive"
       },
@@ -35,33 +35,33 @@
       "ranking": [
         {
           "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1204,
+          "adjusted_distance": 0.1326,
           "raw_distance": 0.2655,
           "category": "offensive"
         },
         {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.224,
+          "adjusted_distance": 0.2391,
           "raw_distance": 0.3557,
           "category": "offensive"
         },
         {
           "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.4012,
+          "adjusted_distance": 0.4164,
           "raw_distance": 0.4653,
           "category": "possession"
         },
         {
           "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4052,
+          "adjusted_distance": 0.4247,
           "raw_distance": 0.478,
           "category": "offensive"
         },
         {
-          "strategy": "Gegenpressing",
-          "adjusted_distance": 0.4075,
-          "raw_distance": 0.4924,
-          "category": "pressing"
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.4477,
+          "raw_distance": 0.4945,
+          "category": "offensive"
         }
       ]
     }

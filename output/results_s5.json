@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "1.0.0",
-    "timestamp": "2026-03-07T01:21:16.784090+00:00",
+    "timestamp": "2026-03-07T01:22:22.280135+00:00",
     "config_used": {
       "opponent_penalty_lambda": 0.5,
       "top_n": 5
@@ -12,17 +12,17 @@
   },
   "results": [
     {
-      "scenario_id": "S2_min10",
-      "scenario_label": "Pareggio ristabilito (1-1, 10'). Costruzione manovrata contro 5-3-2, assist Al-Harbi per Al-Dawsari. Momentum positivo.",
+      "scenario_id": "S5_min85",
+      "scenario_label": "Vantaggio 2-3 dopo gol Neves (78') e Al-Yami (82'). Al-Najma in 9 uomini (espulsione El Yamiq 76'). Gestione finale.",
       "match_conditions": {
-        "time_remaining": 80.0,
-        "score_diff": 0,
-        "fatigue_level": 0.15,
-        "morale": 0.8
+        "time_remaining": 5.0,
+        "score_diff": 2,
+        "fatigue_level": 0.8,
+        "morale": 0.9
       },
       "best_strategy": {
         "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1204,
+        "adjusted_distance": 0.143,
         "raw_distance": 0.2655,
         "category": "offensive"
       },
@@ -35,33 +35,33 @@
       "ranking": [
         {
           "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1204,
+          "adjusted_distance": 0.143,
           "raw_distance": 0.2655,
           "category": "offensive"
         },
         {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.224,
+          "adjusted_distance": 0.2258,
           "raw_distance": 0.3557,
           "category": "offensive"
         },
         {
           "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.4012,
+          "adjusted_distance": 0.3274,
           "raw_distance": 0.4653,
           "category": "possession"
         },
         {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4052,
-          "raw_distance": 0.478,
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.414,
+          "raw_distance": 0.4945,
           "category": "offensive"
         },
         {
-          "strategy": "Gegenpressing",
-          "adjusted_distance": 0.4075,
-          "raw_distance": 0.4924,
-          "category": "pressing"
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.4323,
+          "raw_distance": 0.478,
+          "category": "offensive"
         }
       ]
     }

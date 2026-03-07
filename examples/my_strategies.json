@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "macro_attributes": [
+    {"code": "A1",  "label": "Offensive Strength"},
+    {"code": "A2",  "label": "Defensive Strength"},
+    {"code": "A3",  "label": "Midfield Control"},
+    {"code": "A4",  "label": "Transition Speed"},
+    {"code": "A5",  "label": "High Press Capability"},
+    {"code": "A6",  "label": "Width Utilization"},
+    {"code": "A7",  "label": "Psychological Resilience"},
+    {"code": "A8",  "label": "Residual Energy"},
+    {"code": "A9",  "label": "Team Morale"},
+    {"code": "A10", "label": "Time Management"},
+    {"code": "A11", "label": "Tactical Cohesion"},
+    {"code": "A12", "label": "Technical Base"},
+    {"code": "A13", "label": "Physical Base"},
+    {"code": "A14", "label": "Relational Cohesion"}
+  ],
+  "strategies": [
+    {"name": "Build-up Play",                "category": "offensive",   "vector": [0.8, 0.5, 0.7, 0.5, 0.4, 0.6, 0.7, 0.6, 0.8, 0.7, 0.8, 0.8, 0.6, 0.8]},
+    {"name": "Fast Counterattack",           "category": "offensive",   "vector": [0.9, 0.6, 0.5, 0.9, 0.5, 0.6, 0.7, 0.8, 0.7, 0.8, 0.6, 0.7, 0.8, 0.6]},
+    {"name": "Long Ball to Target Man",      "category": "offensive",   "vector": [0.8, 0.6, 0.5, 0.6, 0.4, 0.4, 0.6, 0.7, 0.6, 0.7, 0.5, 0.5, 0.8, 0.5]},
+    {"name": "Late Midfield Runners",        "category": "offensive",   "vector": [0.8, 0.5, 0.6, 0.7, 0.5, 0.5, 0.6, 0.7, 0.7, 0.6, 0.7, 0.7, 0.7, 0.6]},
+    {"name": "Systematic Crossing",          "category": "offensive",   "vector": [0.7, 0.5, 0.6, 0.6, 0.5, 0.9, 0.7, 0.7, 0.7, 0.6, 0.7, 0.7, 0.7, 0.6]},
+    {"name": "Overlapping Flanks",           "category": "offensive",   "vector": [0.7, 0.5, 0.7, 0.7, 0.5, 0.9, 0.7, 0.8, 0.8, 0.7, 0.8, 0.7, 0.8, 0.7]},
+    {"name": "Quick Rotations in Attack",    "category": "offensive",   "vector": [0.8, 0.5, 0.7, 0.8, 0.6, 0.7, 0.8, 0.7, 0.8, 0.7, 0.9, 0.7, 0.8, 0.7]},
+    {"name": "Direct Vertical Attack",       "category": "offensive",   "vector": [0.9, 0.5, 0.5, 0.8, 0.5, 0.6, 0.7, 0.7, 0.7, 0.7, 0.6, 0.7, 0.8, 0.6]},
+    {"name": "Classic Catenaccio",           "category": "defensive",   "vector": [0.4, 0.9, 0.7, 0.3, 0.2, 0.3, 0.8, 0.7, 0.7, 0.9, 0.8, 0.6, 0.6, 0.7]},
+    {"name": "Positional Defense",           "category": "defensive",   "vector": [0.4, 0.9, 0.8, 0.3, 0.2, 0.3, 0.7, 0.6, 0.6, 0.9, 0.8, 0.6, 0.5, 0.7]},
+    {"name": "Compact Zonal Defense",        "category": "defensive",   "vector": [0.5, 0.9, 0.8, 0.4, 0.4, 0.4, 0.7, 0.6, 0.7, 0.8, 0.9, 0.7, 0.6, 0.7]},
+    {"name": "Strict Man-Marking",           "category": "defensive",   "vector": [0.5, 0.9, 0.7, 0.5, 0.5, 0.3, 0.7, 0.7, 0.6, 0.8, 0.8, 0.7, 0.7, 0.7]},
+    {"name": "Offside Trap",                 "category": "defensive",   "vector": [0.5, 0.8, 0.7, 0.5, 0.6, 0.4, 0.7, 0.7, 0.7, 0.8, 0.8, 0.7, 0.7, 0.7]},
+    {"name": "High Press",                   "category": "pressing",    "vector": [0.7, 0.8, 0.6, 0.9, 0.9, 0.5, 0.8, 0.7, 0.8, 0.6, 0.9, 0.7, 0.8, 0.8]},
+    {"name": "Gegenpressing",                "category": "pressing",    "vector": [0.7, 0.8, 0.6, 0.8, 0.9, 0.5, 0.8, 0.7, 0.8, 0.6, 0.9, 0.7, 0.8, 0.8]},
+    {"name": "Midfield Pressing",            "category": "pressing",    "vector": [0.6, 0.7, 0.7, 0.7, 0.7, 0.4, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.7, 0.7]},
+    {"name": "Inducing Build-up Errors",     "category": "pressing",    "vector": [0.7, 0.8, 0.6, 0.8, 0.9, 0.4, 0.7, 0.7, 0.8, 0.6, 0.8, 0.7, 0.7, 0.8]},
+    {"name": "Extended Possession Play",     "category": "possession",  "vector": [0.7, 0.7, 0.9, 0.5, 0.5, 0.6, 0.8, 0.7, 0.8, 0.7, 0.9, 0.8, 0.6, 0.8]},
+    {"name": "Cautious Horizontal Play",     "category": "possession",  "vector": [0.5, 0.7, 0.8, 0.4, 0.3, 0.5, 0.7, 0.7, 0.8, 0.7, 0.8, 0.7, 0.5, 0.7]},
+    {"name": "Central Block with Quick Breaks","category": "hybrid",    "vector": [0.7, 0.8, 0.7, 0.7, 0.7, 0.5, 0.7, 0.7, 0.7, 0.7, 0.8, 0.7, 0.7, 0.7]}
+  ]
+}
