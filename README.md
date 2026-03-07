@@ -105,14 +105,14 @@ python dss_run.py --input examples/example_input.json --output output/results.js
 Run the engine with figure generation:
 
 ```bash
-python dss_run.py --input example_input.json --output output/results.json --figures
+python dss_run.py --input examples/example_input.json --output output/results.json --figures
 
 ```
 
 Run with custom strategies and custom figure directory:
 
 ```bash
-python dss_run.py --input match.json --output output/results.json --strategies my_strategies.json --figures --figdir my_figures/
+python dss_run.py --input examples/match.json --output output/results.json --strategies my_strategies.json --figures --figdir my_figures/
 
 ```
 
@@ -135,14 +135,14 @@ Output:
 Custom strategy templates:
 
 ```bash
-python dss_run.py --input match.json --output output/results.json --strategies my_strategies.json
+python dss_run.py --input examples/match.json --output output/results.json --strategies my_strategies.json
 
 ```
 
 The figure module can also run standalone against previously generated results:
 
 ```bash
-python dss_figures.py --results output/results.json --input example_input.json --strategies strategy_templates.json --outdir output/figures/
+python dss_figures.py --results output/results.json --input examples/example_input.json --strategies strategy_templates.json --outdir output/figures/
 
 ```
 
