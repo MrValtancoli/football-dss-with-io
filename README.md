@@ -98,7 +98,7 @@ Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
 Run the engine:
 
 ```bash
-python dss_run.py --input example_input.json --output output/results.json
+python dss_run.py --input examples/example_input.json --output output/results.json
 
 ```
 
