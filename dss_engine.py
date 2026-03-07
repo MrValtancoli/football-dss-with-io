@@ -248,7 +248,10 @@ def evaluate_strategies(
         sv = strategy["vector"]
         raw_dist = compute_semantic_distance(team_vector, sv)
         opp_dist = compute_semantic_distance(opponent_vector, sv)
-        combined = raw_dist + opponent_penalty_lambda * np.exp(-opp_dist)
+        
+        # Aggiornato in base alla sottrazione lineare: d_comb = d_adapt(team,S) - α d_adapt(opp,S)
+        combined = raw_dist - opponent_penalty_lambda * opp_dist
+        
         raw_data.append({
             "strategy": strategy["name"],
             "vector": sv,
