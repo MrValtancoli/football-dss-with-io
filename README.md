@@ -136,7 +136,7 @@ Output:
 Custom strategy templates:
 
 ```bash
-python dss_run.py --input examples/example_input.json --output output/results.json --strategies my_strategies.json
+python dss_run.py --input examples/example_input.json --output output/results.json --strategies examples/my_strategies.json
 
 ```
 
