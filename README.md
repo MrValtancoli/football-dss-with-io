@@ -41,11 +41,11 @@ The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) 
 ├── strategy_templates.json        # 20 strategies with categories (config)
 ├── dss_input_schema.json          # JSON Schema for input contract
 ├── dss_output_schema.json         # JSON Schema for output contract
-├── example_input.json             # Example: Al-Hilal vs Al-Najma, 5 scenarios
 ├── test_dss.py                    # Test suite (pytest)
 │
 │   # Match scenario examples (Al-Najma 2 - 4 Al-Hilal, Saudi Pro League 2025-11-07)
 ├── examples/
+|   ├── example_input.json         # Example: Al-Hilal vs Al-Najma, 5 scenarios
 │   ├── dss_input_scenario_1.json  # S1 min 3'  — Goal conceded (0-1), cold start reaction
 │   ├── dss_input_scenario_2.json  # S2 min 10' — Equalizer (1-1), positive momentum
 │   ├── dss_input_scenario_3.json  # S3 min 58' — Red card Lázaro, 11v10 numerical advantage
@@ -77,25 +77,25 @@ Dependencies: `numpy`, `pandas`, `matplotlib`, `pydantic`, `pytest`.
 
 Run the engine:
 ```bash
-python dss_run.py --input example_input.json --output results.json
+python dss_run.py --input example_input.json --output output\results.json
 ```
 
 Run the engine with figure generation:
 ```bash
-python dss_run.py --input example_input.json --output results.json --figures
+python dss_run.py --input example_input.json --output output\results.json --figures
 ```
 
 Run with custom strategies and custom figure directory:
 ```bash
-python dss_run.py --input match.json --output results.json --strategies my_strategies.json --figures --figdir my_figures/
+python dss_run.py --input match.json --output output\results.json --strategies my_strategies.json --figures --figdir my_figures/
 ```
 
 Output:
 ```
-[OK] 5 scenarios processed. Output: results.json
+[OK] 5 scenarios processed. Output: output\results.json
      First scenario best strategy: Quick Rotations in Attack
 
-[FIGURES] Generating plots in figures/ ...
+[FIGURES] Generating plots in figures\ ...
 [OK] 12 figures generated:
   → radar_S1.png
   → ranking_S1.png
@@ -106,17 +106,17 @@ Output:
 
 Custom strategy templates:
 ```bash
-python dss_run.py --input match.json --output results.json --strategies my_strategies.json
+python dss_run.py --input match.json --output output\results.json --strategies my_strategies.json
 ```
 
 The figure module can also run standalone against previously generated results:
 ```bash
-python dss_figures.py --results results.json --input example_input.json --strategies strategy_templates.json --outdir figures/
+python dss_figures.py --results output\results.json --input example_input.json --strategies strategy_templates.json --outdir figures/
 ```
 
 Run a specific match scenario (see `examples/`):
 ```bash
-python dss_run.py --input examples/dss_input_scenario_3.json --output results_s3.json
+python dss_run.py --input examples/dss_input_scenario_3.json --output output\results_s3.json
 ```
 
 ## Input Format
