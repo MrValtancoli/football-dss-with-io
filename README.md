@@ -8,7 +8,7 @@
 Fork of the [Semantic Distance-Based DSS for Football Tactics](https://github.com/Aribertus/football-dss-semantic-distance) by introducing structured JSON input/output and refactoring the original monolithic implementation into a modular, testable engine.
 
 > Based on the paper: *Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications*
-> Di Rubbo A., Neri M., Pareschi R., Pedroni M., Valtancoli R., Zica P. — Sci 2025
+> Di Rubbo A., Neri M., Pareschi R., Pedroni M., Valtancoli R., Zica P. — Sci 2026, 8(3), 63
 
 ## What this extension adds
 
@@ -461,4 +461,4 @@ MIT License — see [LICENSE](https://www.google.com/search?q=LICENSE) for detai
 
 ## References
 
-Di Rubbo, A.; Neri, M.; Pareschi, R.; Pedroni, M.; Valtancoli, R.; Zica, P. *Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications.* Sci 2025, 1, 0.
+Di Rubbo, A.; Neri, M.; Pareschi, R.; Pedroni, M.; Valtancoli, R.; Zica, P. *Can Semantic Methods Enhance Team Sports Tactics? A Methodology for Football with Broader Applications.* Sci 2026, 8, 63. https://doi.org/10.3390/sci8030063
