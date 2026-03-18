@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": "2.0.0",
-    "timestamp": "2026-03-18T09:02:46.253896+00:00",
+    "timestamp": "2026-03-18T10:14:29.563399+00:00",
     "config_used": {
       "opponent_penalty_lambda": 0.2,
       "top_n": 5
@@ -21,46 +21,46 @@
         "morale": 0.4
       },
       "best_strategy": {
-        "strategy": "Overlapping Flanks",
-        "adjusted_distance": 0.2212,
-        "raw_distance": 0.3618,
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.1619,
+        "raw_distance": 0.2844,
         "category": "offensive"
       },
       "baseline_strategy": {
         "strategy": "Build-up Play",
-        "adjusted_distance": 0.3562,
-        "raw_distance": 0.3562,
+        "adjusted_distance": 0.2844,
+        "raw_distance": 0.2844,
         "category": "offensive"
       },
       "ranking": [
         {
-          "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2212,
-          "raw_distance": 0.3618,
-          "category": "offensive"
-        },
-        {
           "strategy": "Build-up Play",
-          "adjusted_distance": 0.2332,
-          "raw_distance": 0.3562,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.2607,
-          "raw_distance": 0.391,
+          "adjusted_distance": 0.1619,
+          "raw_distance": 0.2844,
           "category": "offensive"
         },
         {
           "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.2918,
-          "raw_distance": 0.4158,
+          "adjusted_distance": 0.1658,
+          "raw_distance": 0.2879,
           "category": "possession"
         },
         {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.2937,
-          "raw_distance": 0.4323,
+          "strategy": "Cautious Horizontal Play",
+          "adjusted_distance": 0.2931,
+          "raw_distance": 0.3859,
+          "category": "possession"
+        },
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.305,
+          "raw_distance": 0.446,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.3195,
+          "raw_distance": 0.4504,
           "category": "offensive"
         }
       ]
