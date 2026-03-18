@@ -3,17 +3,36 @@ DSS Engine — Core computation module.
 Pure functions: no print, no file I/O, no side effects.
 Input: dicts/lists conformi allo schema JSON.
 Output: dicts/lists conformi allo schema JSON.
+
+Weight computation follows Section 3.6.2 of the paper:
+  - Equations (5)–(7):  energy-based multipliers (m5, m10, m13)
+  - Equations (8)–(11): gap-based multipliers (m1, m2, m6, m11)
+  - Equations (12)–(13): time-pressure multipliers (m4, m1 additive)
+  - Clamp to [0.3, 2.5], normalize to sum = 14
 """
 
 import json
 import numpy as np
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
 
-VERSION = "1.0.0"
+VERSION = "2.0.0"
 
 ATTR_KEYS = [f"A{i}" for i in range(1, 15)]
+
+# ---------------------------------------------------------------------------
+# Default parameters (Table 5 in paper)
+# ---------------------------------------------------------------------------
+
+DEFAULT_PARAMS = {
+    "tau_e": 0.50,    # Energy threshold: fatigue becomes salient below this
+    "gamma_e": 1.50,  # Energy sensitivity
+    "gamma_g": 1.00,  # Gap sensitivity
+    "tau_t": 0.25,    # Time threshold: urgency triggers in final quarter
+    "gamma_t": 2.00,  # Urgency sensitivity
+    "m_min": 0.30,    # Multiplier floor
+    "m_max": 2.50,    # Multiplier ceiling
+}
 
 
 # ---------------------------------------------------------------------------
@@ -30,199 +49,117 @@ def load_strategies(path: str | Path | None = None) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Weight vector computation (Section 3.6.2, Algorithm 1)
+# ---------------------------------------------------------------------------
+
+def compute_weight_vector(
+    team_profile: dict[str, float],
+    opponent_profile: dict[str, float],
+    match_conditions: dict,
+    params: dict | None = None,
+) -> list[float]:
+    """
+    Compute the 14-dimensional weight vector w from match context.
+
+    Follows Algorithm 1 and equations (5)–(13) from the paper.
+
+    Inputs from match_conditions:
+      - fatigue_level: used as proxy for residual energy via e = 1 - fatigue_level
+        (future: IoT sensors will provide this directly; invert with e = 1 - fatigue_level)
+      - time_remaining: minutes remaining [0, 90], converted to t = time_remaining / 90
+      - score_diff: integer, mapped to ternary s ∈ {-1, 0, +1}
+
+    Inputs from profiles:
+      - team A12, A13 (technical/physical base)
+      - opponent A12, A13 (for gap computation)
+
+    Returns: list of 14 floats (w1..w14), normalized to sum = 14.
+    """
+    p = {**DEFAULT_PARAMS, **(params or {})}
+
+    # --- Initialize all multipliers to 1 ---
+    m = [1.0] * 14  # m[0] = m1 (A1), ..., m[13] = m14 (A14)
+
+    # --- Context indicators ---
+
+    # Energy: e = residual energy ∈ [0,1] (high = fresh)
+    # fatigue_level is inverted: high = tired, so e = 1 - fatigue_level
+    # NOTE: when IoT data arrives, fatigue_level will come from heart rate monitors
+    # and the inversion e = 1 - fatigue_level maps it to the paper's convention.
+    # For now, fatigue_level in match_conditions serves as per-scenario proxy for A8.
+    e = 1.0 - float(match_conditions.get("fatigue_level", 0.5))
+    delta_e = max(0.0, p["tau_e"] - e)
+
+    # Technical and physical gaps
+    delta_tech = team_profile["A12"] - opponent_profile["A12"]
+    delta_phys = team_profile["A13"] - opponent_profile["A13"]
+
+    # Time pressure: t ∈ [0,1] fraction remaining (1 = kickoff, 0 = final whistle)
+    t = float(match_conditions.get("time_remaining", 45)) / 90.0
+
+    # Score state: ternary s ∈ {-1, 0, +1}
+    raw_score_diff = int(match_conditions.get("score_diff", 0))
+    if raw_score_diff > 0:
+        s = 1
+    elif raw_score_diff < 0:
+        s = -1
+    else:
+        s = 0
+
+    # Time pressure indicator: δt = max(0, τt - t) · 1[s ≤ 0]
+    indicator_not_winning = 1.0 if s <= 0 else 0.0
+    delta_t = max(0.0, p["tau_t"] - t) * indicator_not_winning
+
+    # --- Energy-based adjustments (eq. 5–7) ---
+    m[4]  = 1.0 - p["gamma_e"] * delta_e          # m5:  reduce High Press Capability
+    m[9]  = 1.0 + p["gamma_e"] * delta_e          # m10: increase Time Management
+    m[12] = 1.0 - 0.5 * p["gamma_e"] * delta_e    # m13: reduce Physical Base
+
+    # --- Gap-based adjustments (eq. 8–11) ---
+    m[1]  = 1.0 + p["gamma_g"] * max(0.0, -delta_tech)    # m2:  increase Defensive Strength if technically inferior
+    m[10] = 1.0 + p["gamma_g"] * max(0.0, -delta_phys)    # m11: increase Tactical Cohesion if physically inferior
+    m[0]  = 1.0 - 0.5 * p["gamma_g"] * max(0.0, -delta_tech)  # m1: reduce Offensive Strength if outmatched
+    m[5]  = 1.0 - 0.5 * p["gamma_g"] * max(0.0, -delta_phys)  # m6: reduce Width Utilization if outmatched
+
+    # --- Time pressure adjustments (eq. 12–13) ---
+    m[3]  = 1.0 + p["gamma_t"] * delta_t           # m4: increase Transition Speed
+    m[0]  = m[0] + p["gamma_t"] * delta_t           # m1: further increase Offensive Strength (additive)
+
+    # --- Clamp all multipliers (Section 3.6.2) ---
+    for j in range(14):
+        m[j] = max(p["m_min"], min(m[j], p["m_max"]))
+
+    # --- Normalize to sum = 14 (preserving baseline where all w_j = 1) ---
+    total = sum(m)
+    w = [14.0 * mj / total for mj in m]
+
+    return w
+
+
+# ---------------------------------------------------------------------------
 # Distance computation
 # ---------------------------------------------------------------------------
 
-def compute_semantic_distance(vector1: list[float], vector2: list[float]) -> float:
-    """Euclidean distance between two attribute vectors."""
-    return float(np.sqrt(np.sum((np.array(vector1) - np.array(vector2)) ** 2)))
-
-
-# ---------------------------------------------------------------------------
-# Strategy vector helpers (continuous traits, not binary flags)
-# ---------------------------------------------------------------------------
-
-def _intensity_score(sv: list[float]) -> float:
-    """How physically demanding is this strategy? Continuous [0,1]."""
-    return (sv[3] + sv[4]) / 2.0  # A4 (Transition) + A5 (Pressing)
-
-def _offensive_score(sv: list[float]) -> float:
-    """How offensively oriented? Continuous [0,1]."""
-    return (sv[0] + sv[4]) / 2.0  # A1 (Offensive) + A5 (Pressing)
-
-def _conservative_score(sv: list[float]) -> float:
-    """How conservative/defensive? Continuous [0,1]."""
-    return (sv[1] + sv[9]) / 2.0  # A2 (Defensive) + A10 (Time Management)
-
-def _complexity_score(sv: list[float]) -> float:
-    """How tactically complex? Continuous [0,1]."""
-    return (sv[10] + sv[2]) / 2.0  # A11 (Cohesion) + A3 (Midfield)
-
-
-# ---------------------------------------------------------------------------
-# Sigmoid utility
-# ---------------------------------------------------------------------------
-
-def _sigmoid(x: float, center: float = 0.0, steepness: float = 1.0) -> float:
-    """Sigmoid mapped to [0, 1]. center = inflection point, steepness = slope."""
-    return 1.0 / (1.0 + np.exp(-steepness * (x - center)))
-
-
-def _scale_factor(value_01: float, low: float, high: float) -> float:
-    """Map a [0,1] value to an arbitrary [low, high] range."""
-    return low + value_01 * (high - low)
-
-
-# ---------------------------------------------------------------------------
-# Weight axes — each returns a factor around 1.0
-# Signature: (match_conditions, strategy_vector) -> float
-# Convention: < 1.0 = bonus (reduces distance), > 1.0 = penalty
-# ---------------------------------------------------------------------------
-
-def axis_energy(mc: dict, sv: list[float]) -> float:
-    """
-    Fatigue axis.
-    High fatigue penalizes high-intensity strategies, rewards low-intensity ones.
-    Always contributes — no dead zones.
-    """
-    fatigue = float(mc.get("fatigue_level", 0.5))
-    intensity = _intensity_score(sv)
-
-    # interaction: high fatigue * high intensity → penalty up to 1.4
-    #              high fatigue * low intensity  → bonus down to 0.85
-    #              low fatigue → near 1.0 regardless
-    interaction = fatigue * (intensity - 0.5) * 2.0  # range ~ [-1, 1]
-    return _scale_factor(_sigmoid(interaction, center=0.0, steepness=3.0), 0.85, 1.40)
-
-
-def axis_urgency(mc: dict, sv: list[float]) -> float:
-    """
-    Time pressure + score context.
-    Behind with little time → bonus for offensive, penalty for conservative.
-    Ahead with little time → opposite.
-    Continuous: even 35 minutes left with -1 produces a mild push.
-    """
-    time_left = float(mc.get("time_remaining", 45))
-    score_diff = float(mc.get("score_diff", 0))
-
-    # time_pressure: 0 at 90min, 1 at 0min — sigmoid centered at 25min
-    time_pressure = _sigmoid(-time_left, center=-25.0, steepness=0.12)
-
-    # need: positive = need to score (behind), negative = need to protect (ahead)
-    need = -score_diff  # behind → positive need
-
-    # Combined urgency signal
-    urgency = time_pressure * need  # range ~ [-1, 1]
-
-    # How it interacts with strategy:
-    # urgency > 0 (need goals) → reward offensive, penalize conservative
-    # urgency < 0 (protect lead) → reward conservative, penalize offensive
-    offensive = _offensive_score(sv)
-    conservative = _conservative_score(sv)
-    strategy_direction = offensive - conservative  # positive = offensive leaning
-
-    # Alignment: urgency and strategy direction agree → bonus
-    alignment = urgency * strategy_direction  # positive = aligned
-    return _scale_factor(_sigmoid(-alignment, center=0.0, steepness=4.0), 0.65, 1.50)
-
-
-def axis_morale(mc: dict, sv: list[float]) -> float:
-    """
-    Morale axis.
-    Low morale penalizes complex tactics, rewards simple/structured ones.
-    High morale gives slight bonus to ambitious strategies.
-    Continuous across the full morale range.
-    """
-    morale = float(mc.get("morale", 0.7))
-    complexity = _complexity_score(sv)
-    offensive = _offensive_score(sv)
-
-    # Low morale: complexity is risky
-    morale_deficit = 0.7 - morale  # positive when morale is below average
-    complexity_penalty = morale_deficit * complexity * 2.0
-
-    # High morale: offensive ambition is rewarded
-    morale_surplus = morale - 0.7  # positive when morale is above average
-    ambition_bonus = morale_surplus * offensive * 1.5
-
-    signal = complexity_penalty - ambition_bonus  # positive → penalty
-    return _scale_factor(_sigmoid(signal, center=0.0, steepness=3.0), 0.85, 1.25)
-
-
-def axis_score_context(mc: dict, sv: list[float]) -> float:
-    """
-    Score differential axis (independent of time).
-    Large lead → mild preference for possession/conservative.
-    Large deficit → mild preference for directness.
-    Small or zero diff → near neutral.
-    """
-    score_diff = float(mc.get("score_diff", 0))
-    conservative = _conservative_score(sv)
-    offensive = _offensive_score(sv)
-
-    if score_diff > 0:
-        # Ahead: reward conservative proportionally to lead size
-        fit = conservative * min(score_diff, 3) / 3.0
-        return _scale_factor(1.0 - fit, 0.90, 1.10)
-    elif score_diff < 0:
-        # Behind: reward offensive proportionally to deficit
-        fit = offensive * min(abs(score_diff), 3) / 3.0
-        return _scale_factor(1.0 - fit, 0.90, 1.10)
-    else:
-        return 1.0
-
-
-# ---------------------------------------------------------------------------
-# Axis registry — add/remove axes here without touching anything else
-# ---------------------------------------------------------------------------
-
-WEIGHT_AXES = [
-    axis_energy,
-    axis_urgency,
-    axis_morale,
-    axis_score_context,
-]
-
-
-# ---------------------------------------------------------------------------
-# Main dynamic weight function
-# ---------------------------------------------------------------------------
-
-def apply_dynamic_weights(
-    raw_distance: float,
-    match_conditions: dict,
-    strategy_vector: list[float],
+def compute_semantic_distance(
+    vector1: list[float],
+    vector2: list[float],
+    weights: list[float] | None = None,
 ) -> float:
     """
-    Context-aware adjustment multiplier.
-    Product of all registered weight axes, clamped to [0.4, 2.0].
-    Each axis is an independent, continuous function — no dead zones.
+    Weighted Euclidean distance: d = sqrt( sum( w_j * (x_j - y_j)^2 ) )
+    If weights is None, falls back to standard Euclidean (all w_j = 1).
     """
-    adjustment = 1.0
-    for axis_fn in WEIGHT_AXES:
-        adjustment *= axis_fn(match_conditions, strategy_vector)
-
-    adjustment = max(0.4, min(adjustment, 2.0))
-    return max(0.0, raw_distance * adjustment)
+    v1 = np.array(vector1)
+    v2 = np.array(vector2)
+    if weights is None:
+        return float(np.sqrt(np.sum((v1 - v2) ** 2)))
+    w = np.array(weights)
+    return float(np.sqrt(np.sum(w * (v1 - v2) ** 2)))
 
 
 # ---------------------------------------------------------------------------
 # Strategy selection (single scenario)
 # ---------------------------------------------------------------------------
-
-def _normalize_min_max(values: list[float], floor: float = 0.1) -> list[float]:
-    """
-    Min-max normalization to [floor, 1.0].
-    Floor > 0 ensures the best raw strategy still gets a nonzero
-    distance that dynamic weights can meaningfully adjust.
-    If all values are equal, returns uniform floor values.
-    """
-    v_min = min(values)
-    v_max = max(values)
-    if v_max - v_min < 1e-9:
-        return [floor] * len(values)
-    return [floor + (1.0 - floor) * (v - v_min) / (v_max - v_min) for v in values]
-
 
 def evaluate_strategies(
     team_profile: dict[str, float],
@@ -233,46 +170,41 @@ def evaluate_strategies(
 ) -> list[dict]:
     """
     Evaluate all strategies for a single scenario.
-    1. Compute combined distances (team fit + opponent penalty)
-    2. Normalize to [0.1, 1.0] so relative differences are preserved
-       but dynamic weights can effectively reorder the ranking
-    3. Apply context-aware dynamic weights
-    Returns list of dicts sorted by adjusted_distance (ascending = best fit first).
+
+    Follows Algorithm 1 from the paper:
+    1. Compute weight vector w from match context
+    2. For each strategy: d_adapt(team, S; w) - α · d_adapt(opp, S; w)
+    3. Sort by ascending combined distance (best fit first)
+
+    No post-hoc normalization — the weight vector inside the distance
+    is the sole mechanism for context adaptation.
     """
     team_vector = [team_profile[k] for k in ATTR_KEYS]
     opponent_vector = [opponent_profile[k] for k in ATTR_KEYS]
 
-    # Pass 1: compute raw combined distances
-    raw_data = []
+    # Compute weight vector once per scenario
+    w = compute_weight_vector(team_profile, opponent_profile, match_conditions)
+
+    # Compute raw (unweighted) baseline distance for diagnostics
+    scores = []
     for strategy in strategies:
         sv = strategy["vector"]
-        raw_dist = compute_semantic_distance(team_vector, sv)
-        opp_dist = compute_semantic_distance(opponent_vector, sv)
-        
-        # Aggiornato in base alla sottrazione lineare: d_comb = d_adapt(team,S) - α d_adapt(opp,S)
-        combined = raw_dist - opponent_penalty_lambda * opp_dist
-        
-        raw_data.append({
-            "strategy": strategy["name"],
-            "vector": sv,
-            "raw_distance": raw_dist,
-            "combined_distance": combined,
-            "category": strategy.get("category", "unknown"),
-        })
 
-    # Pass 2: normalize combined distances
-    combined_values = [d["combined_distance"] for d in raw_data]
-    normalized = _normalize_min_max(combined_values)
+        # Adapted (weighted) distances
+        d_team = compute_semantic_distance(team_vector, sv, w)
+        d_opp = compute_semantic_distance(opponent_vector, sv, w)
 
-    # Pass 3: apply dynamic weights on normalized distances
-    scores = []
-    for entry, norm_dist in zip(raw_data, normalized):
-        adjusted = apply_dynamic_weights(norm_dist, match_conditions, entry["vector"])
+        # Combined distance: linear subtraction (Section 4.2)
+        d_comb = d_team - opponent_penalty_lambda * d_opp
+
+        # Raw (unweighted) distance for baseline comparison
+        d_raw = compute_semantic_distance(team_vector, sv)
+
         scores.append({
-            "strategy": entry["strategy"],
-            "adjusted_distance": round(adjusted, 4),
-            "raw_distance": round(entry["raw_distance"], 4),
-            "category": entry["category"],
+            "strategy": strategy["name"],
+            "adjusted_distance": round(d_comb, 4),
+            "raw_distance": round(d_raw, 4),
+            "category": strategy.get("category", "unknown"),
         })
 
     scores.sort(key=lambda x: x["adjusted_distance"])
@@ -285,6 +217,7 @@ def compute_baseline(
 ) -> dict:
     """
     Static baseline: team fit only, no dynamic weights, no opponent.
+    Uses unweighted Euclidean distance.
     Returns the best strategy_score dict.
     """
     team_vector = [team_profile[k] for k in ATTR_KEYS]

@@ -3,7 +3,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![I/O: JSON](https://img.shields.io/badge/I%2FO-JSON-orange.svg)]()
-[![Tests: 24 passed](https://img.shields.io/badge/tests-24%20passed-green.svg)]()
+[![Tests: 35 passed](https://img.shields.io/badge/tests-35%20passed-green.svg)]()
 
 Fork of the [Semantic Distance-Based DSS for Football Tactics](https://github.com/Aribertus/football-dss-semantic-distance) by introducing structured JSON input/output and refactoring the original monolithic implementation into a modular, testable engine.
 
@@ -20,11 +20,9 @@ This extension makes the DSS consumable as a component, with a formal I/O contra
 - **Pure computation engine** — no print, no file I/O, no side effects
 - **Strategy templates externalized** as configuration (JSON), not code constants
 - **Batch processing** — multiple match scenarios in a single call, shared team profiles
-- **Continuous dynamic weights** replacing binary if/else thresholds (no dead zones)
-- **Min-max normalization** enabling context-aware ranking reordering
-- **Plug-in architecture** for weight axes — add/remove/rewrite without touching core logic
+- **Per-attribute dynamic weighting** inside the Euclidean distance (Section 3.6.2, eq. 5–13 of the paper), replacing the previous post-distance scalar multiplier
 - **Integrated figure generation** from real JSON results (`--figures` flag)
-- **Full test suite** (24 tests) covering unit, integration, schema validation, and scenario differentiation
+- **Full test suite** (35 tests) covering distance computation, weight vector, integration, schema validation, and scenario differentiation
 
 The original research scripts (`make_figures.py`, `compute_pilot_distances.py`) are preserved unchanged for reproducibility of the paper's experimental results.
 
@@ -163,10 +161,10 @@ The system accepts a JSON file with three required sections: team profile, oppon
   "input_mode": "macro",
   "team": {
     "name": "Al-Hilal",
-    "A1": 0.82, "A2": 0.55, "A3": 0.78, "A4": 0.75,
-    "A5": 0.70, "A6": 0.72, "A7": 0.75, "A8": 0.80,
-    "A9": 0.80, "A10": 0.65, "A11": 0.80, "A12": 0.82,
-    "A13": 0.75, "A14": 0.78
+    "A1": 0.75, "A2": 0.65, "A3": 0.80, "A4": 0.50,
+    "A5": 0.42, "A6": 0.65, "A7": 0.72, "A8": 0.75,
+    "A9": 0.78, "A10": 0.75, "A11": 0.70, "A12": 0.78,
+    "A13": 0.62, "A14": 0.72
   },
   "opponent": {
     "name": "Al-Najma",
@@ -183,12 +181,12 @@ The system accepts a JSON file with three required sections: team profile, oppon
         "time_remaining": 87,
         "score_diff": -1,
         "fatigue_level": 0.05,
-        "morale": 0.60
+        "morale": 0.40
       }
     }
   ],
   "config": {
-    "opponent_penalty_lambda": 0.5,
+    "opponent_penalty_lambda": 0.20,
     "top_n": 5
   }
 }
@@ -212,29 +210,29 @@ For each scenario, the engine returns the best strategy (with and without dynami
 ```json
 {
   "meta": {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "timestamp": "2026-03-01T15:02:22Z",
-    "config_used": { "opponent_penalty_lambda": 0.5, "top_n": 5 },
+    "config_used": { "opponent_penalty_lambda": 0.20, "top_n": 5 },
     "team_name": "Al-Hilal",
     "opponent_name": "Al-Najma",
-    "total_scenarios": 3
+    "total_scenarios": 5
   },
   "results": [
     {
       "scenario_id": "S1_min03",
       "scenario_label": "Goal conceded (0-1), cold start reaction",
-      "match_conditions": { "time_remaining": 87, "score_diff": -1, "fatigue_level": 0.05, "morale": 0.60 },
+      "match_conditions": { "time_remaining": 87, "score_diff": -1, "fatigue_level": 0.05, "morale": 0.40 },
       "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1213,
-        "raw_distance": 0.2655,
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.1619,
+        "raw_distance": 0.3063,
         "category": "offensive"
       },
       "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
-        "category": "offensive"
+        "strategy": "Extended Possession Play",
+        "adjusted_distance": 0.2963,
+        "raw_distance": 0.2963,
+        "category": "possession"
       },
       "ranking": [ "..." ]
     }
@@ -243,7 +241,7 @@ For each scenario, the engine returns the best strategy (with and without dynami
 
 ```
 
-`best_strategy` uses dynamic weights (context-aware); `baseline_strategy` is pure geometric fit (static). When these differ, it means match conditions shifted the recommendation.
+`best_strategy` uses per-attribute weighted Euclidean distance (context-aware); `baseline_strategy` is pure unweighted geometric fit (static). When these differ, it means match conditions shifted the recommendation. Note: `adjusted_distance` may be negative because the combined formula uses linear subtraction of the opponent distance.
 
 ## Figure Generation
 
@@ -281,11 +279,10 @@ Input JSON
 ┌─────────────────────┐
 │  For each scenario:  │
 │                      │
-│  1. Raw distances    │  Euclidean: team ↔ 20 strategies
-│  2. Opponent penalty │  Linear subtraction on opponent fit
-│  3. Min-max normalize│  Relative scaling [0.1, 1.0]
-│  4. Dynamic weights  │  Product of 4 continuous axes
-│  5. Sort & rank      │
+│  1. Weight vector    │  14-dim w from match context (eq. 5–13)
+│  2. Adapted distance │  Weighted Euclidean: team ↔ 20 strategies
+│  3. Opponent penalty │  Linear subtraction: d_team - α·d_opp
+│  4. Sort & rank      │
 └──────────┬──────────┘
            │
            ▼
@@ -304,44 +301,23 @@ Input JSON
 
 ### Dynamic Weight System
 
-The original implementation used binary if/else thresholds: conditions either triggered or didn't, creating dead zones where different match states produced identical rankings.
-
-This extension replaces them with four continuous sigmoid-based axes. Each axis maps match conditions to a multiplier around 1.0 (below 1.0 = bonus, above = penalty). The final adjustment is the product of all axes, clamped to [0.4, 2.0].
-
-**Energy axis** — High fatigue penalizes high-intensity strategies proportionally. A team at fatigue 0.5 sees a *mild* penalty on pressing tactics; at 0.85 the penalty is *heavy*. No threshold, no dead zone.
-
-**Urgency axis** — Combines time pressure and score context through a sigmoid centered at minute 25. Being behind with 30 minutes left produces a subtle push toward offensive tactics; with 10 minutes left, the push is strong. The axis also works in reverse: ahead with little time rewards conservative strategies.
-
-**Morale axis** — Low morale penalizes tactically complex strategies (requiring high cohesion and coordination), while high morale gives a slight bonus to ambitious offensive tactics.
-
-**Score context axis** — Independent of time, captures the pure effect of lead size. A 2-0 lead mildly favors possession/defensive strategies regardless of minute.
-
-### Plug-in Design
-
-Adding a new axis requires two changes:
-
-1. Write a function with signature `(match_conditions: dict, strategy_vector: list[float]) -> float`
-2. Append it to the `WEIGHT_AXES` list
-
-```python
-# Example: weather axis (hypothetical)
-def axis_weather(mc: dict, sv: list[float]) -> float:
-    rain = mc.get("rain_intensity", 0.0)
-    technical_demand = (sv[11] + sv[2]) / 2.0  # A12 + A3
-    penalty = rain * technical_demand
-    return _scale_factor(_sigmoid(penalty, 0.0, 3.0), 0.90, 1.20)
-
-WEIGHT_AXES.append(axis_weather)
+The engine implements the per-attribute dynamic weighting from Section 3.6.2 of the paper (equations 5–13). Instead of applying a scalar multiplier after the distance computation, each of the 14 attributes receives an individually calibrated weight *inside* the weighted Euclidean distance formula:
 
 ```
+d_adapt(x, y; w) = sqrt( Σ w_j · (x_j - y_j)² )
+```
 
-No other code needs to change. The engine multiplies all registered axes automatically.
+The weight vector w is computed fresh for each scenario from six match-state inputs: residual energy (via `fatigue_level`, inverted as `e = 1 - fatigue_level`), technical and physical gaps (A12/A13 team vs opponent), time remaining (converted to fraction `t = time_remaining / 90`), and score state (mapped to ternary `s ∈ {-1, 0, +1}`).
 
-### Min-Max Normalization
+Three mechanisms modulate the weights:
 
-Raw Euclidean distances vary in absolute scale depending on the team profile. A team strongly aligned with one strategy can have a raw distance gap of 34% between #1 and #2, making it impossible for dynamic weights to reorder the ranking.
+**Energy adjustments (eq. 5–7)** — When `e < τe` (default 0.50), the system reduces the importance of High Press Capability (A5) and Physical Base (A13), while increasing Time Management (A10). This reflects the tactical reality that fatigued teams should avoid energy-intensive strategies.
 
-Normalizing combined distances to [0.1, 1.0] before applying weights preserves relative ordering while giving the dynamic system enough leverage to shift rankings when conditions warrant it. The floor of 0.1 ensures the best raw strategy still receives a nonzero distance that weights can meaningfully adjust.
+**Gap adjustments (eq. 8–11)** — When the team is technically or physically inferior (negative Δtech or Δphys), the system increases weight on Defensive Strength (A2) and Tactical Cohesion (A11), while reducing Offensive Strength (A1) and Width Utilization (A6).
+
+**Time pressure adjustments (eq. 12–13)** — When time is running out (`t < τt`, default 0.25) and the team is not winning (`s ≤ 0`), the system amplifies Transition Speed (A4) and Offensive Strength (A1) to favor direct, vertical play.
+
+All multipliers are clamped to [0.3, 2.5] and normalized to sum = 14 (preserving baseline scale). Default parameters follow Table 5 of the paper and are exposed via `DEFAULT_PARAMS` in `dss_engine.py`.
 
 ## Macro-Attributes
 
@@ -385,19 +361,19 @@ python -m pytest test_dss.py -v
 
 ```
 
-The suite covers six areas:
+The suite covers six areas (35 tests total):
 
-**Distance computation** — zero distance for identical vectors, known Euclidean values, symmetry.
+**Distance computation (7)** — zero distance for identical vectors (weighted and unweighted), known Euclidean values, symmetry, weight=None equivalence, single-attribute amplification.
 
-**Dynamic weights** — neutral conditions produce near-1.0 adjustment, extreme conditions stay clamped, fatigue penalizes intensity, no dead zones (different inputs always produce different outputs), all axes return positive floats.
+**Weight vector (11)** — neutral conditions produce uniform weights, sum always = 14, clamp bounds respected, energy activation/inactivation thresholds, time pressure activation (losing) and inactivation (winning), gap activation (inferior) and inactivation (superior), combined mechanisms, ternary score mapping.
 
-**Strategy evaluation** — results sorted ascending, all 20 strategies present, required output fields.
+**Strategy evaluation (3)** — results sorted ascending, all 20 strategies present, required output fields.
 
-**Scenario differentiation** — radically different conditions produce different top-5 rankings, urgency favors offensive tactics when behind, advantage management favors conservative tactics when ahead.
+**Scenario differentiation (5)** — radically different conditions produce different rankings, fatigue changes adjusted distances, urgency favors offensive when behind, advantage management favors conservative when ahead, gap changes ranking vs strong opponent.
 
-**Batch execution** — output structure matches schema, Pydantic validates output, scenario IDs preserved, top_n respected.
+**Batch execution (4)** — output structure matches schema, Pydantic validates output, scenario IDs preserved, top_n respected.
 
-**Schema validation** — valid input passes, out-of-range attributes rejected, raw mode rejected, empty scenarios rejected, missing attributes rejected.
+**Schema validation (5)** — valid input passes, out-of-range attributes rejected, raw mode rejected, empty scenarios rejected, missing attributes rejected.
 
 ## Match Scenario Examples
 
@@ -435,9 +411,39 @@ These scenarios are designed for demonstrating how the DSS dynamically adapts re
 
 **Diagnostics layer.** Per-attribute delta analysis (strategy demands vs. team capabilities) in the output, identifying capability gaps and surpluses for the recommended strategy.
 
-**Weight calibration.** Systematic tuning of axis parameters (sigmoid centers, steepness, ranges) against expert-labeled match scenarios to ensure meaningful ranking differentiation across diverse game states.
+**Parameter calibration.** Systematic tuning of weight parameters (τe, γe, γg, τt, γt) against expert-labeled match scenarios to ensure meaningful ranking differentiation. Currently using paper defaults from Table 5.
+
+**IoT integration layer.** Connect `fatigue_level` to real-time physiological data (heart rate monitors, GPS units). The engine already accepts per-scenario fatigue via `match_conditions`; the inversion `e = 1 - fatigue_level` maps it to the paper's residual energy convention.
 
 **Extended figure suite.** Sensitivity analysis (λ sweep), robustness tests (Monte Carlo noise injection), and ablation studies — currently available in the original `make_figures.py` with synthetic data, to be integrated into `dss_figures.py` using real JSON results.
+
+## Known Limitations and Paper Alignment
+
+This section documents known divergences between the current implementation and the paper's framework, as well as structural limitations of the model identified during development. These serve as both transparency notes and candidates for future work.
+
+### 1. Morale (A9) not dynamically weighted
+
+The paper's weight computation (Section 3.6.2) uses six inputs to determine the weight vector: residual energy, technical gap, physical gap, time remaining, and score state. Team Morale (A9) is not among them — it participates in the distance computation as a static attribute but receives no dynamic multiplier. The `morale` field in `match_conditions` is accepted by the schema and preserved in the output for narrative and diagnostic purposes, but does not influence the weight vector in the current engine.
+
+### 2. No "protect advantage" mechanism
+
+The time pressure indicator δt activates only when the team is not winning (`s ≤ 0`). When leading (`s = +1`), the indicator is zero regardless of time remaining. This means the engine has no symmetric mechanism to amplify defensive or possession attributes (A2, A10) when protecting a late lead. In scenario S5 (ahead 3-2, 85'), the weight vector is shaped only by energy adjustments, not by the tactical urgency of game management.
+
+### 3. Combined distance can be negative
+
+The opponent-aware formula `d_comb = d_adapt(team, S) − α · d_adapt(opp, S)` can produce negative values when the opponent's distance to a strategy is large relative to the team's. This occurs naturally when the opponent is weak and the team fits a strategy well. The paper does not discuss interpretation of negative combined distances. The ranking remains valid (lower = better fit), but absolute values lose their metric interpretation.
+
+### 4. Fatigue as per-scenario proxy for A8
+
+The paper specifies `e = V_team[A8]` for the energy deficit computation. Since A8 is a static team profile attribute shared across all scenarios, it cannot reflect in-match fatigue progression. This implementation uses `e = 1 − fatigue_level` from `match_conditions` as a per-scenario proxy, anticipating the paper's own note that "in deployment, V_team[A8] may be updated dynamically from physiological monitoring" (Section 3.6.2). When IoT integration is available, `fatigue_level` will be populated from heart rate monitors and GPS data; the inversion maps it to the paper's residual energy convention.
+
+### 5. Opponent penalty factor α
+
+The paper specifies α = 0.20 (Table 5). This implementation uses α = 0.20 as the default in all scenario files, aligned with the paper. Previous versions used α = 0.50, which amplified the opponent penalty and compressed the ranking. The `opponent_penalty_lambda` parameter remains configurable via the `config` section of the input JSON.
+
+### 6. Limited differentiation with weak opponents
+
+When the team is technically and physically superior to the opponent (positive Δtech and Δphys), the gap-based weight adjustments (eq. 8–11) produce no effect. Combined with early-match scenarios where fatigue is below threshold (δe = 0) and time pressure is inactive, the weight vector remains uniform — producing identical rankings across scenarios. Meaningful differentiation requires at least one active mechanism, which in practice means: fatigue above 0.50, time below ~22 minutes while not winning, or an opponent superior on A12/A13.
 
 ## Upstream Research Scripts
 

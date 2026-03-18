@@ -1,9 +1,9 @@
 {
   "meta": {
-    "version": "1.0.0",
-    "timestamp": "2026-03-07T01:21:55.280285+00:00",
+    "version": "2.0.0",
+    "timestamp": "2026-03-18T09:02:48.444038+00:00",
     "config_used": {
-      "opponent_penalty_lambda": 0.5,
+      "opponent_penalty_lambda": 0.2,
       "top_n": 5
     },
     "team_name": "Al-Hilal",
@@ -13,54 +13,54 @@
   "results": [
     {
       "scenario_id": "S4_min71",
-      "scenario_label": "Pareggio 2-2 (71'). Theo Hern\u00e1ndez segna dopo azione corale dalla zona di rifinitura. Gara riaperta dopo OG al 60'.",
+      "scenario_label": "Pareggio 2-2 (71'). Theo Hern\u00c3\u00a1ndez segna dopo azione corale dalla zona di rifinitura. Gara riaperta dopo OG al 60'.",
       "match_conditions": {
         "time_remaining": 19.0,
         "score_diff": 0,
-        "fatigue_level": 0.6,
-        "morale": 0.75
+        "fatigue_level": 0.75,
+        "morale": 0.6
       },
       "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1326,
-        "raw_distance": 0.2655,
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2231,
+        "raw_distance": 0.3618,
         "category": "offensive"
       },
       "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
         "category": "offensive"
       },
       "ranking": [
         {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1326,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2391,
-          "raw_distance": 0.3557,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.4164,
-          "raw_distance": 0.4653,
-          "category": "possession"
-        },
-        {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4247,
-          "raw_distance": 0.478,
+          "adjusted_distance": 0.2231,
+          "raw_distance": 0.3618,
           "category": "offensive"
         },
         {
           "strategy": "Build-up Play",
-          "adjusted_distance": 0.4477,
-          "raw_distance": 0.4945,
+          "adjusted_distance": 0.2243,
+          "raw_distance": 0.3562,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.2646,
+          "raw_distance": 0.391,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2907,
+          "raw_distance": 0.4158,
+          "category": "possession"
+        },
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.293,
+          "raw_distance": 0.4323,
           "category": "offensive"
         }
       ]

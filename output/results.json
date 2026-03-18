@@ -1,9 +1,9 @@
 {
   "meta": {
-    "version": "1.0.0",
-    "timestamp": "2026-03-07T01:13:21.933075+00:00",
+    "version": "2.0.0",
+    "timestamp": "2026-03-18T08:59:26.176097+00:00",
     "config_used": {
-      "opponent_penalty_lambda": 0.5,
+      "opponent_penalty_lambda": 0.2,
       "top_n": 5
     },
     "team_name": "Al-Hilal",
@@ -12,271 +12,271 @@
   },
   "results": [
     {
-      "scenario_id": "S1",
-      "scenario_label": "Dominio centrocampo, inizio partita",
+      "scenario_id": "S1_min03",
+      "scenario_label": "Gol subito a freddo (1-0 Al-Najma, 3'). Difesa alta sorpresa, L\u00c3\u00a1zaro segna da fuori area. Reazione immediata richiesta.",
       "match_conditions": {
-        "time_remaining": 75.0,
+        "time_remaining": 87.0,
+        "score_diff": -1,
+        "fatigue_level": 0.05,
+        "morale": 0.4
+      },
+      "best_strategy": {
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2212,
+        "raw_distance": 0.3618,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2212,
+          "raw_distance": 0.3618,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.2332,
+          "raw_distance": 0.3562,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.2607,
+          "raw_distance": 0.391,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2918,
+          "raw_distance": 0.4158,
+          "category": "possession"
+        },
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.2937,
+          "raw_distance": 0.4323,
+          "category": "offensive"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S2_min10",
+      "scenario_label": "Pareggio ristabilito (1-1, 10'). Costruzione manovrata contro 5-3-2, assist Al-Harbi per Al-Dawsari. Momentum positivo.",
+      "match_conditions": {
+        "time_remaining": 80.0,
         "score_diff": 0,
-        "fatigue_level": 0.2,
+        "fatigue_level": 0.15,
         "morale": 0.8
       },
       "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1213,
-        "raw_distance": 0.2655,
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2212,
+        "raw_distance": 0.3618,
         "category": "offensive"
       },
       "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
         "category": "offensive"
       },
       "ranking": [
         {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1213,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2248,
-          "raw_distance": 0.3557,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.4012,
-          "raw_distance": 0.4653,
-          "category": "possession"
-        },
-        {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4059,
-          "raw_distance": 0.478,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Gegenpressing",
-          "adjusted_distance": 0.4124,
-          "raw_distance": 0.4924,
-          "category": "pressing"
-        }
-      ]
-    },
-    {
-      "scenario_id": "S2",
-      "scenario_label": "Attacco manovrato contro blocco 5-3-2",
-      "match_conditions": {
-        "time_remaining": 55.0,
-        "score_diff": 1,
-        "fatigue_level": 0.4,
-        "morale": 0.85
-      },
-      "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1281,
-        "raw_distance": 0.2655,
-        "category": "offensive"
-      },
-      "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
-        "category": "offensive"
-      },
-      "ranking": [
-        {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1281,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2344,
-          "raw_distance": 0.3557,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.408,
-          "raw_distance": 0.4653,
-          "category": "possession"
-        },
-        {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4229,
-          "raw_distance": 0.478,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Gegenpressing",
-          "adjusted_distance": 0.4397,
-          "raw_distance": 0.4924,
-          "category": "pressing"
-        }
-      ]
-    },
-    {
-      "scenario_id": "S3",
-      "scenario_label": "Transizione verticale rapida",
-      "match_conditions": {
-        "time_remaining": 40.0,
-        "score_diff": 2,
-        "fatigue_level": 0.5,
-        "morale": 0.85
-      },
-      "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1274,
-        "raw_distance": 0.2655,
-        "category": "offensive"
-      },
-      "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
-        "category": "offensive"
-      },
-      "ranking": [
-        {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1274,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2272,
-          "raw_distance": 0.3557,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.382,
-          "raw_distance": 0.4653,
-          "category": "possession"
-        },
-        {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4139,
-          "raw_distance": 0.478,
+          "adjusted_distance": 0.2212,
+          "raw_distance": 0.3618,
           "category": "offensive"
         },
         {
           "strategy": "Build-up Play",
-          "adjusted_distance": 0.4299,
-          "raw_distance": 0.4945,
-          "category": "offensive"
-        }
-      ]
-    },
-    {
-      "scenario_id": "S4",
-      "scenario_label": "Fase difensiva sotto pressione (Al-Najma prospettiva)",
-      "match_conditions": {
-        "time_remaining": 30.0,
-        "score_diff": -2,
-        "fatigue_level": 0.65,
-        "morale": 0.45
-      },
-      "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1507,
-        "raw_distance": 0.2655,
-        "category": "offensive"
-      },
-      "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
-        "category": "offensive"
-      },
-      "ranking": [
-        {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1507,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2879,
-          "raw_distance": 0.3557,
+          "adjusted_distance": 0.2332,
+          "raw_distance": 0.3562,
           "category": "offensive"
         },
         {
           "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4916,
-          "raw_distance": 0.478,
+          "adjusted_distance": 0.2607,
+          "raw_distance": 0.391,
           "category": "offensive"
         },
         {
-          "strategy": "Gegenpressing",
-          "adjusted_distance": 0.5213,
-          "raw_distance": 0.4924,
-          "category": "pressing"
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2918,
+          "raw_distance": 0.4158,
+          "category": "possession"
         },
         {
-          "strategy": "High Press",
-          "adjusted_distance": 0.5259,
-          "raw_distance": 0.5123,
-          "category": "pressing"
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.2937,
+          "raw_distance": 0.4323,
+          "category": "offensive"
         }
       ]
     },
     {
-      "scenario_id": "S5",
-      "scenario_label": "Game management 11v9, vantaggio 3-2",
+      "scenario_id": "S3_min58",
+      "scenario_label": "Espulsione L\u00c3\u00a1zaro per condotta violenta (58'). Superiorit\u00c3\u00a0 numerica 11v10, risultato 1-1. Opportunit\u00c3\u00a0 tattica.",
       "match_conditions": {
-        "time_remaining": 12.0,
-        "score_diff": 1,
+        "time_remaining": 32.0,
+        "score_diff": 0,
+        "fatigue_level": 0.58,
+        "morale": 0.7
+      },
+      "best_strategy": {
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2214,
+        "raw_distance": 0.3618,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2214,
+          "raw_distance": 0.3618,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.2309,
+          "raw_distance": 0.3562,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.2621,
+          "raw_distance": 0.391,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2915,
+          "raw_distance": 0.4158,
+          "category": "possession"
+        },
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.2931,
+          "raw_distance": 0.4323,
+          "category": "offensive"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S4_min71",
+      "scenario_label": "Pareggio 2-2 (71'). Theo Hern\u00c3\u00a1ndez segna dopo azione corale dalla zona di rifinitura. Gara riaperta dopo OG al 60'.",
+      "match_conditions": {
+        "time_remaining": 19.0,
+        "score_diff": 0,
         "fatigue_level": 0.75,
-        "morale": 0.8
+        "morale": 0.6
       },
       "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.1467,
-        "raw_distance": 0.2655,
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2231,
+        "raw_distance": 0.3618,
         "category": "offensive"
       },
       "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
         "category": "offensive"
       },
       "ranking": [
         {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.1467,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2476,
-          "raw_distance": 0.3557,
-          "category": "offensive"
-        },
-        {
-          "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.3952,
-          "raw_distance": 0.4653,
-          "category": "possession"
-        },
-        {
-          "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4545,
-          "raw_distance": 0.478,
+          "adjusted_distance": 0.2231,
+          "raw_distance": 0.3618,
           "category": "offensive"
         },
         {
           "strategy": "Build-up Play",
-          "adjusted_distance": 0.4563,
-          "raw_distance": 0.4945,
+          "adjusted_distance": 0.2243,
+          "raw_distance": 0.3562,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.2646,
+          "raw_distance": 0.391,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2907,
+          "raw_distance": 0.4158,
+          "category": "possession"
+        },
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.293,
+          "raw_distance": 0.4323,
+          "category": "offensive"
+        }
+      ]
+    },
+    {
+      "scenario_id": "S5_min85",
+      "scenario_label": "Vantaggio 2-3 dopo gol Neves (78') e Al-Yami (82'). Al-Najma in 9 uomini (espulsione El Yamiq 76'). Gestione finale.",
+      "match_conditions": {
+        "time_remaining": 5.0,
+        "score_diff": 2,
+        "fatigue_level": 0.85,
+        "morale": 0.9
+      },
+      "best_strategy": {
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2223,
+        "raw_distance": 0.3618,
+        "category": "offensive"
+      },
+      "baseline_strategy": {
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
+        "category": "offensive"
+      },
+      "ranking": [
+        {
+          "strategy": "Overlapping Flanks",
+          "adjusted_distance": 0.2223,
+          "raw_distance": 0.3618,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Build-up Play",
+          "adjusted_distance": 0.223,
+          "raw_distance": 0.3562,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Systematic Crossing",
+          "adjusted_distance": 0.2669,
+          "raw_distance": 0.391,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2906,
+          "raw_distance": 0.4158,
+          "category": "possession"
+        },
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.2912,
+          "raw_distance": 0.4323,
           "category": "offensive"
         }
       ]

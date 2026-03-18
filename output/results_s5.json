@@ -1,9 +1,9 @@
 {
   "meta": {
-    "version": "1.0.0",
-    "timestamp": "2026-03-07T01:22:22.280135+00:00",
+    "version": "2.0.0",
+    "timestamp": "2026-03-18T09:02:49.091870+00:00",
     "config_used": {
-      "opponent_penalty_lambda": 0.5,
+      "opponent_penalty_lambda": 0.2,
       "top_n": 5
     },
     "team_name": "Al-Hilal",
@@ -17,50 +17,50 @@
       "match_conditions": {
         "time_remaining": 5.0,
         "score_diff": 2,
-        "fatigue_level": 0.8,
+        "fatigue_level": 0.85,
         "morale": 0.9
       },
       "best_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.143,
-        "raw_distance": 0.2655,
+        "strategy": "Overlapping Flanks",
+        "adjusted_distance": 0.2223,
+        "raw_distance": 0.3618,
         "category": "offensive"
       },
       "baseline_strategy": {
-        "strategy": "Quick Rotations in Attack",
-        "adjusted_distance": 0.2655,
-        "raw_distance": 0.2655,
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.3562,
+        "raw_distance": 0.3562,
         "category": "offensive"
       },
       "ranking": [
         {
-          "strategy": "Quick Rotations in Attack",
-          "adjusted_distance": 0.143,
-          "raw_distance": 0.2655,
-          "category": "offensive"
-        },
-        {
           "strategy": "Overlapping Flanks",
-          "adjusted_distance": 0.2258,
-          "raw_distance": 0.3557,
+          "adjusted_distance": 0.2223,
+          "raw_distance": 0.3618,
           "category": "offensive"
-        },
-        {
-          "strategy": "Extended Possession Play",
-          "adjusted_distance": 0.3274,
-          "raw_distance": 0.4653,
-          "category": "possession"
         },
         {
           "strategy": "Build-up Play",
-          "adjusted_distance": 0.414,
-          "raw_distance": 0.4945,
+          "adjusted_distance": 0.223,
+          "raw_distance": 0.3562,
           "category": "offensive"
         },
         {
           "strategy": "Systematic Crossing",
-          "adjusted_distance": 0.4323,
-          "raw_distance": 0.478,
+          "adjusted_distance": 0.2669,
+          "raw_distance": 0.391,
+          "category": "offensive"
+        },
+        {
+          "strategy": "Extended Possession Play",
+          "adjusted_distance": 0.2906,
+          "raw_distance": 0.4158,
+          "category": "possession"
+        },
+        {
+          "strategy": "Quick Rotations in Attack",
+          "adjusted_distance": 0.2912,
+          "raw_distance": 0.4323,
           "category": "offensive"
         }
       ]

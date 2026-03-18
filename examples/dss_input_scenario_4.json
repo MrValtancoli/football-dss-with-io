@@ -3,19 +3,19 @@
   "team": {
     "name": "Al-Hilal",
     "A1": 0.82,
-    "A2": 0.55,
+    "A2": 0.58,
     "A3": 0.78,
-    "A4": 0.75,
-    "A5": 0.7,
+    "A4": 0.58,
+    "A5": 0.5,
     "A6": 0.72,
-    "A7": 0.75,
-    "A8": 0.8,
+    "A7": 0.72,
+    "A8": 0.78,
     "A9": 0.8,
-    "A10": 0.65,
-    "A11": 0.8,
+    "A10": 0.68,
+    "A11": 0.62,
     "A12": 0.82,
-    "A13": 0.75,
-    "A14": 0.78
+    "A13": 0.72,
+    "A14": 0.75
   },
   "opponent": {
     "name": "Al-Najma",
@@ -37,17 +37,17 @@
   "scenarios": [
     {
       "id": "S4_min71",
-      "label": "Pareggio 2-2 (71'). Theo Hern\u00e1ndez segna dopo azione corale dalla zona di rifinitura. Gara riaperta dopo OG al 60'.",
+      "label": "Pareggio 2-2 (71'). Theo Hernández segna dopo azione corale dalla zona di rifinitura. Gara riaperta dopo OG al 60'.",
       "match_conditions": {
         "time_remaining": 19,
         "score_diff": 0,
-        "fatigue_level": 0.6,
-        "morale": 0.75
+        "fatigue_level": 0.75,
+        "morale": 0.6
       }
     }
   ],
   "config": {
-    "opponent_penalty_lambda": 0.5,
+    "opponent_penalty_lambda": 0.2,
     "top_n": 5
   }
 }
