@@ -269,8 +269,12 @@ def run_batch(input_data: dict, strategies: list[dict] | None = None) -> dict:
     for scenario in scenarios:
         mc = scenario["match_conditions"]
 
+        # Apply per-scenario profile overrides (A7, A8, A9)
+        overrides = scenario.get("profile_overrides") or {}
+        effective_team_profile = {**team_profile, **{k: v for k, v in overrides.items() if v is not None}}
+
         ranking_full = evaluate_strategies(
-            team_profile, opponent_profile, strategies, mc,
+            effective_team_profile, opponent_profile, strategies, mc,
             opponent_penalty_lambda=opp_lambda,
         )
 
