@@ -31,7 +31,14 @@ class TeamProfile(BaseModel):
     def to_dict(self) -> dict[str, float]:
         """Return only A1-A14 as dict (excludes name)."""
         return {f"A{i}": getattr(self, f"A{i}") for i in range(1, 15)}
-
+    
+class ProfileOverrides(BaseModel):
+    """Per-scenario overrides for team profile attributes.
+    Only A7, A8, A9 are allowed in v1. Values must be in [0.0, 1.0].
+    """
+    A7: float | None = Field(default=None, ge=0.0, le=1.0, description="Psychological Resilience override")
+    A8: float | None = Field(default=None, ge=0.0, le=1.0, description="Residual Energy override")
+    A9: float | None = Field(default=None, ge=0.0, le=1.0, description="Team Morale override")
 
 class MatchConditions(BaseModel):
     time_remaining: float = Field(..., ge=0, le=90, description="Minutes remaining")
@@ -39,12 +46,11 @@ class MatchConditions(BaseModel):
     fatigue_level: float = Field(..., ge=0.0, le=1.0, description="0=fresh, 1=exhausted")
     morale: float = Field(..., ge=0.0, le=1.0, description="0=demoralized, 1=euphoric")
 
-
 class Scenario(BaseModel):
     id: str | None = None
     label: str | None = None
     match_conditions: MatchConditions
-
+    profile_overrides: ProfileOverrides | None = None
 
 class DSSConfig(BaseModel):
     opponent_penalty_lambda: float = Field(default=0.5, ge=0.0, le=1.0)
