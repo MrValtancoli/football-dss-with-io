@@ -70,6 +70,9 @@
         },
         "match_conditions": {
           "$ref": "#/definitions/match_conditions"
+        },
+        "profile_overrides": {
+          "$ref": "#/definitions/profile_overrides"
         }
       },
       "additionalProperties": false
@@ -92,7 +95,7 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1,
-          "description": "Livello fatica [0=freschi, 1=esausti]"
+          "description": "Livello fatica istantanea [0=freschi, 1=esausti] — alimenta il weight vector"
         },
         "morale": {
           "type": "number",
@@ -100,6 +103,16 @@
           "maximum": 1,
           "description": "Morale squadra [0=demoralizzati, 1=euforici]"
         }
+      },
+      "additionalProperties": false
+    },
+    "profile_overrides": {
+      "type": "object",
+      "description": "Override per-scenario degli attributi del profilo team (A7, A8, A9). Sostituisce il valore base nel vettore team per questo scenario. Il baseline non viene modificato.",
+      "properties": {
+        "A7": { "type": "number", "minimum": 0, "maximum": 1, "description": "Psychological Resilience override" },
+        "A8": { "type": "number", "minimum": 0, "maximum": 1, "description": "Residual Energy override" },
+        "A9": { "type": "number", "minimum": 0, "maximum": 1, "description": "Team Morale override" }
       },
       "additionalProperties": false
     },
