@@ -21,6 +21,7 @@ This extension makes the DSS consumable as a component, with a formal I/O contra
 - **Strategy templates externalized** as configuration (JSON), not code constants
 - **Batch processing** — multiple match scenarios in a single call, shared team profiles
 - **Per-attribute dynamic weighting** inside the Euclidean distance (Section 3.6.2, eq. 5–13 of the paper), replacing the previous post-distance scalar multiplier
+- **Per-scenario profile overrides** — A7, A8, A9 can be adjusted per scenario to reflect in-game state changes, independently of the static team profile
 - **Integrated figure generation** from real JSON results (`--figures` flag)
 - **Full test suite** (35 tests) covering distance computation, weight vector, integration, schema validation, and scenario differentiation
 
@@ -119,7 +120,7 @@ Output:
 
 ```text
 [OK] 3 scenarios processed. Output: output/results.json
-     First scenario best strategy: Quick Rotations in Attack
+     First scenario best strategy: Build-up Play
 
 [FIGURES] Generating plots in output/figures/ ...
 [OK] 8 figures generated:
@@ -182,11 +183,15 @@ The system accepts a JSON file with three required sections: team profile, oppon
         "score_diff": -1,
         "fatigue_level": 0.05,
         "morale": 0.40
+      },
+      "profile_overrides": {
+        "A7": 0.55,
+        "A9": 0.40
       }
     }
   ],
   "config": {
-    "opponent_penalty_lambda": 0.20,
+    "opponent_penalty_lambda": 0.2,
     "top_n": 5
   }
 }
@@ -194,6 +199,20 @@ The system accepts a JSON file with three required sections: team profile, oppon
 ```
 
 `input_mode` accepts `"macro"` (A1-A14 already aggregated) or `"raw"` (player-level attributes, not yet implemented — reserved for future use).
+
+### Profile Overrides
+
+The optional `profile_overrides` field allows per-scenario adjustment of three team attributes that change during a match:
+
+| Field | Attribute | Typical use |
+| --- | --- | --- |
+| `A7` | Psychological Resilience | Lower after a goal conceded, red card, or comeback |
+| `A8` | Residual Energy | Structural reserve (heavy schedule, limited rotation) |
+| `A9` | Team Morale | Reflects in-game momentum shifts |
+
+These overrides replace the corresponding value in the team vector for that scenario only. The static team profile and the baseline computation are never modified.
+
+Note: `fatigue_level` in `match_conditions` and `A8` in `profile_overrides` serve distinct purposes. `fatigue_level` is the instantaneous in-game fatigue signal that feeds the dynamic weight vector (how much each attribute matters). `A8` is the structural energy reserve the team entered the match with. When IoT data (heart rate monitors, GPS) becomes available, `fatigue_level` will be populated in real time from physiological sensors; `A8` will remain a pre-match assessment.
 
 Validation rejects out-of-range values, missing fields, and unsupported modes with clear error messages:
 
@@ -211,11 +230,11 @@ For each scenario, the engine returns the best strategy (with and without dynami
 {
   "meta": {
     "version": "2.0.0",
-    "timestamp": "2026-03-01T15:02:22Z",
-    "config_used": { "opponent_penalty_lambda": 0.20, "top_n": 5 },
+    "timestamp": "2026-03-18T10:14:29Z",
+    "config_used": { "opponent_penalty_lambda": 0.2, "top_n": 5 },
     "team_name": "Al-Hilal",
     "opponent_name": "Al-Najma",
-    "total_scenarios": 5
+    "total_scenarios": 1
   },
   "results": [
     {
@@ -225,14 +244,14 @@ For each scenario, the engine returns the best strategy (with and without dynami
       "best_strategy": {
         "strategy": "Build-up Play",
         "adjusted_distance": 0.1619,
-        "raw_distance": 0.3063,
+        "raw_distance": 0.2844,
         "category": "offensive"
       },
       "baseline_strategy": {
-        "strategy": "Extended Possession Play",
-        "adjusted_distance": 0.2963,
-        "raw_distance": 0.2963,
-        "category": "possession"
+        "strategy": "Build-up Play",
+        "adjusted_distance": 0.2844,
+        "raw_distance": 0.2844,
+        "category": "offensive"
       },
       "ranking": [ "..." ]
     }
@@ -279,6 +298,7 @@ Input JSON
 ┌─────────────────────┐
 │  For each scenario:  │
 │                      │
+│  0. Apply overrides  │  A7, A8, A9 per-scenario (team vector only)
 │  1. Weight vector    │  14-dim w from match context (eq. 5–13)
 │  2. Adapted distance │  Weighted Euclidean: team ↔ 20 strategies
 │  3. Opponent penalty │  Linear subtraction: d_team - α·d_opp
@@ -307,7 +327,7 @@ The engine implements the per-attribute dynamic weighting from Section 3.6.2 of 
 d_adapt(x, y; w) = sqrt( Σ w_j · (x_j - y_j)² )
 ```
 
-The weight vector w is computed fresh for each scenario from six match-state inputs: residual energy (via `fatigue_level`, inverted as `e = 1 - fatigue_level`), technical and physical gaps (A12/A13 team vs opponent), time remaining (converted to fraction `t = time_remaining / 90`), and score state (mapped to ternary `s ∈ {-1, 0, +1}`).
+The weight vector w is computed fresh for each scenario from six match-state inputs: instantaneous fatigue (via `fatigue_level`, inverted as `e = 1 - fatigue_level`), technical and physical gaps (A12/A13 team vs opponent), time remaining (converted to fraction `t = time_remaining / 90`), and score state (mapped to ternary `s ∈ {-1, 0, +1}`).
 
 Three mechanisms modulate the weights:
 
@@ -407,6 +427,8 @@ These scenarios are designed for demonstrating how the DSS dynamically adapts re
 
 ## Roadmap
 
+**Per-scenario profile overrides (v1).** A7, A8, A9 can be adjusted per scenario via `profile_overrides` to reflect in-game state changes (morale drop after a goal conceded, energy depletion, resilience under pressure). The static team profile serves as the pre-match baseline and is never modified.
+
 **Step 1B — Raw input mode.** Accept player-level attributes (xG, speed, stamina, etc.) per role and compute A1-A14 internally using the aggregation functions from the original codebase. The `input_mode: "raw"` field is already reserved in the schema.
 
 **Diagnostics layer.** Per-attribute delta analysis (strategy demands vs. team capabilities) in the output, identifying capability gaps and surpluses for the recommended strategy.
@@ -416,34 +438,6 @@ These scenarios are designed for demonstrating how the DSS dynamically adapts re
 **IoT integration layer.** Connect `fatigue_level` to real-time physiological data (heart rate monitors, GPS units). The engine already accepts per-scenario fatigue via `match_conditions`; the inversion `e = 1 - fatigue_level` maps it to the paper's residual energy convention.
 
 **Extended figure suite.** Sensitivity analysis (λ sweep), robustness tests (Monte Carlo noise injection), and ablation studies — currently available in the original `make_figures.py` with synthetic data, to be integrated into `dss_figures.py` using real JSON results.
-
-## Known Limitations and Paper Alignment
-
-This section documents known divergences between the current implementation and the paper's framework, as well as structural limitations of the model identified during development. These serve as both transparency notes and candidates for future work.
-
-### 1. Morale (A9) not dynamically weighted
-
-The paper's weight computation (Section 3.6.2) uses six inputs to determine the weight vector: residual energy, technical gap, physical gap, time remaining, and score state. Team Morale (A9) is not among them — it participates in the distance computation as a static attribute but receives no dynamic multiplier. The `morale` field in `match_conditions` is accepted by the schema and preserved in the output for narrative and diagnostic purposes, but does not influence the weight vector in the current engine.
-
-### 2. No "protect advantage" mechanism
-
-The time pressure indicator δt activates only when the team is not winning (`s ≤ 0`). When leading (`s = +1`), the indicator is zero regardless of time remaining. This means the engine has no symmetric mechanism to amplify defensive or possession attributes (A2, A10) when protecting a late lead. In scenario S5 (ahead 3-2, 85'), the weight vector is shaped only by energy adjustments, not by the tactical urgency of game management.
-
-### 3. Combined distance can be negative
-
-The opponent-aware formula `d_comb = d_adapt(team, S) − α · d_adapt(opp, S)` can produce negative values when the opponent's distance to a strategy is large relative to the team's. This occurs naturally when the opponent is weak and the team fits a strategy well. The paper does not discuss interpretation of negative combined distances. The ranking remains valid (lower = better fit), but absolute values lose their metric interpretation.
-
-### 4. Fatigue as per-scenario proxy for A8
-
-The paper specifies `e = V_team[A8]` for the energy deficit computation. Since A8 is a static team profile attribute shared across all scenarios, it cannot reflect in-match fatigue progression. This implementation uses `e = 1 − fatigue_level` from `match_conditions` as a per-scenario proxy, anticipating the paper's own note that "in deployment, V_team[A8] may be updated dynamically from physiological monitoring" (Section 3.6.2). When IoT integration is available, `fatigue_level` will be populated from heart rate monitors and GPS data; the inversion maps it to the paper's residual energy convention.
-
-### 5. Opponent penalty factor α
-
-The paper specifies α = 0.20 (Table 5). This implementation uses α = 0.20 as the default in all scenario files, aligned with the paper. Previous versions used α = 0.50, which amplified the opponent penalty and compressed the ranking. The `opponent_penalty_lambda` parameter remains configurable via the `config` section of the input JSON.
-
-### 6. Limited differentiation with weak opponents
-
-When the team is technically and physically superior to the opponent (positive Δtech and Δphys), the gap-based weight adjustments (eq. 8–11) produce no effect. Combined with early-match scenarios where fatigue is below threshold (δe = 0) and time pressure is inactive, the weight vector remains uniform — producing identical rankings across scenarios. Meaningful differentiation requires at least one active mechanism, which in practice means: fatigue above 0.50, time below ~22 minutes while not winning, or an opponent superior on A12/A13.
 
 ## Upstream Research Scripts
 
